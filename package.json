@@ -9,6 +9,9 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
     "prettier": "^3.7.4",
     "turbo": "^2.9.18",
     "typescript": "5.9.2"
@@ -20,5 +23,17 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "razorpay": "^2.9.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "recoil": "^0.7.7"
+  },
+  "overrides": {
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
 }

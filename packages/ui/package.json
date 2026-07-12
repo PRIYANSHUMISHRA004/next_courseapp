@@ -1,10 +1,9 @@
 {
-  "name": "@repo/ui",
+  "name": "ui",
   "version": "0.0.0",
   "private": true,
-  "exports": {
-    "./*": "./src/*.tsx"
-  },
+  "main": "./index.tsx",
+  "types": "./index.tsx",
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",
@@ -14,13 +13,19 @@
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@types/node": "^22.15.3",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "eslint": "^9.39.1",
     "typescript": "5.9.2"
   },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.11",
+    "store":"*"
   }
 }
