@@ -6,7 +6,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "POST") {
+  if (req.method !== "DELETE") {
     return res.status(405).json({
       message: "Method not allowed",
     });
@@ -27,31 +27,31 @@ export default async function handler(
       });
     }
 
-    const courseData = { ...req.body };
+    const { courseId } = req.query;
 
-    // thumbnail falls back to imageLink when not explicitly supplied
-    if (!courseData.thumbnail && courseData.imageLink) {
-      courseData.thumbnail = courseData.imageLink;
+    if (!courseId) {
+      return res.status(400).json({
+        message: "Course ID is required",
+      });
     }
 
-    const course = new Course({
-      ...courseData,
+    const course = await Course.findOneAndDelete({
+      _id: courseId,
       adminId: admin._id,
     });
 
-    await course.save();
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found or not owned by admin",
+      });
+    }
 
     return res.status(200).json({
-      message: "Course created",
-      course,
+      message: "Course deleted successfully",
     });
-  } catch (err) {
-    console.error(err);
-    const error = err as { statusCode?: number; message?: string };
-    const status = error.statusCode || 500;
-    const message = error.message || "Server error";
-    return res.status(status).json({
-      message,
+  } catch (error) {
+    return res.status(401).json({
+      message: "Unauthorized",
     });
   }
 }

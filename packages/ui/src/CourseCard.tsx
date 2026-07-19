@@ -1,4 +1,4 @@
-import { Button, Card, Typography } from "@mui/material";
+import { Button, Card, Chip, Stack, Typography } from "@mui/material";
 import { CourseFormat } from "store";
 
 export function CoursecardAdmin({
@@ -37,13 +37,23 @@ export function CoursecardAdmin({
             {course.title}
           </Typography>
 
-          <Typography
-            variant="body1"
-            textAlign="center"
-            style={{ marginTop: 8, fontWeight: 600 }}
+          <Stack
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            spacing={1.5}
+            style={{ marginTop: 8, padding: "0 12px" }}
           >
-            ₹{course.price}
-          </Typography>
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              ₹{course.price}
+            </Typography>
+            <Chip
+              label={course.published ? "Published" : "Draft"}
+              size="small"
+              color={course.published ? "success" : "default"}
+              sx={{ fontWeight: 700, fontSize: "0.7rem" }}
+            />
+          </Stack>
 
           <div
             style={{
@@ -65,6 +75,10 @@ export function CoursecardAdmin({
   );
 }
 
+// Inline SVG placeholder used when a course image fails to load
+const PLACEHOLDER_SRC =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='180' viewBox='0 0 300 180'%3E%3Crect width='300' height='180' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='13' fill='%2394a3b8'%3ENo Image Available%3C/text%3E%3C/svg%3E";
+
 export function Coursecard({
   courses,
   onClick,
@@ -81,8 +95,12 @@ export function Coursecard({
             margin: 10,
             width: 300,
             overflow: "hidden",
+            // Equal-height: use flex column so all cards in the same row stretch identically
+            display: "flex",
+            flexDirection: "column",
           }}
         >
+          {/* Image with onError fallback to prevent broken-image icon */}
           <img
             src={course.imageLink}
             alt={course.title}
@@ -90,6 +108,10 @@ export function Coursecard({
               width: "100%",
               height: 180,
               objectFit: "cover",
+              flexShrink: 0,
+            }}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_SRC;
             }}
           />
 
@@ -101,19 +123,31 @@ export function Coursecard({
             {course.title}
           </Typography>
 
-          <Typography
-            variant="body1"
-            textAlign="center"
-            style={{ marginTop: 8, fontWeight: 600 }}
+          <Stack
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            spacing={1.5}
+            style={{ marginTop: 8, padding: "0 12px" }}
           >
-            ₹{course.price}
-          </Typography>
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              ₹{course.price}
+            </Typography>
+            <Chip
+              label={course.published ? "Published" : "Draft"}
+              size="small"
+              color={course.published ? "success" : "default"}
+              sx={{ fontWeight: 700, fontSize: "0.7rem" }}
+            />
+          </Stack>
 
+          {/* Push the button to the bottom so cards with shorter titles align */}
           <div
             style={{
               display: "flex",
               justifyContent: "center",
               padding: 12,
+              marginTop: "auto",
             }}
           >
             <Button

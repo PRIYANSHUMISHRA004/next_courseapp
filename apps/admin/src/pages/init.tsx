@@ -6,10 +6,11 @@ import { userState } from "store";
 
 interface InitUserProps {
   apiUrl: string;
+  role:any
 }
 
-export default function InitUser({ apiUrl }: InitUserProps) {
-  const setUser = useSetRecoilState(userState);
+export default function InitUser({ apiUrl,role }: InitUserProps) {
+  const setUser = useSetRecoilState(role);
 
   useEffect(() => {
     async function init() {
@@ -45,7 +46,7 @@ export default function InitUser({ apiUrl }: InitUserProps) {
     }
 
     init();
-  }, [setUser, apiUrl]);
+  }, [setUser, apiUrl,role]);
 
   return null;
 }

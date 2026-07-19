@@ -29,7 +29,26 @@ export default async function handler(
       });
     }
 
-    const { courseId, title, description, imageLink, price, published } = req.body;
+    const {
+      courseId,
+      title,
+      description,
+      imageLink,
+      price,
+      published,
+      // new optional fields
+      category,
+      level,
+      language,
+      duration,
+      thumbnail,
+      tags,
+      totalLessons,
+      rating,
+      studentsEnrolled,
+      // LMS: embedded lessons array
+      lessons,
+    } = req.body;
 console.log("Admin ID:", admin._id);
 console.log("Course ID:", courseId);
 const existingCourse = await Course.findById(courseId);
@@ -43,17 +62,31 @@ console.log(admin._id);
       },
       {
         $set: {
+          // original fields — only updated when truthy/defined in the request
           title,
           description,
           imageLink,
           price,
           published,
+          // new optional fields — undefined values are ignored by MongoDB $set
+          ...(category !== undefined && { category }),
+          ...(level !== undefined && { level }),
+          ...(language !== undefined && { language }),
+          ...(duration !== undefined && { duration }),
+          ...(thumbnail !== undefined && { thumbnail }),
+          ...(tags !== undefined && { tags }),
+          ...(totalLessons !== undefined && { totalLessons }),
+          ...(rating !== undefined && { rating }),
+          ...(studentsEnrolled !== undefined && { studentsEnrolled }),
+          // LMS: replace entire lessons array when provided
+          ...(lessons !== undefined && { lessons }),
         },
       },
       {
         new: true,
       }
     );
+
 
     if (!course) {
       return res.status(404).json({
@@ -66,6 +99,7 @@ console.log(admin._id);
       course,
     });
   } catch (error) {
+    console.error("updateCourse API Error:", error);
     return res.status(401).json({
       message: "Unauthorized",
     });

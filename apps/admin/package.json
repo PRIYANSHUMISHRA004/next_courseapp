@@ -8,16 +8,17 @@
     "start": "next start"
   },
   "dependencies": {
+    "@mui/icons-material": "7.3.11",
+    "auth": "*",
     "axios": "^1.17.0",
+    "db": "*",
     "js-cookie": "^3.0.8",
     "next": "16.2.9",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "recoil": "^0.7.7",
     "store": "*",
-    "ui": "*",
-    "db": "*",
-    "auth": "*"
+    "ui": "*"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",

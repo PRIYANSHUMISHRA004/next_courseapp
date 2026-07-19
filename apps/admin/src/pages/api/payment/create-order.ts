@@ -70,6 +70,7 @@ export default async function handler(
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
+      keyId: process.env.RAZORPAY_KEY_ID,
     });
   } catch (err) {
     console.error(err);
