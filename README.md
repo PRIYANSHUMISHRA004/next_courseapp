@@ -1,6 +1,6 @@
 # 📚 Next CourseApp
 
-A full-stack **Learning Management System (LMS)** built with Next.js, MongoDB, and Razorpay — organized as a **Turborepo monorepo**. It supports two roles: **Admins** (course creators) and **Users** (learners), with course browsing, purchasing, and lesson viewing.
+A full-stack **Learning Management System (LMS)** built with Next.js, Tailwind CSS, MongoDB, and Razorpay — organized as a **Turborepo monorepo**. It supports two roles: **Admins** (course creators) and **Users** (learners), with course browsing, purchasing, and lesson viewing.
 
 ---
 
@@ -9,16 +9,18 @@ A full-stack **Learning Management System (LMS)** built with Next.js, MongoDB, a
 ```
 next_courseapp/
 ├── apps/
-│   ├── admin/          # Main Next.js app (Admin + User portals)
+│   ├── admin/          # Main Next.js app (Admin + User portals styled with Tailwind CSS)
 │   ├── web/            # Public-facing web app
 │   └── docs/           # Documentation site
 ├── packages/
 │   ├── db/             # Mongoose models & DB connection
 │   ├── store/          # Recoil atoms (global state)
-│   ├── ui/             # Shared React component library
+│   ├── ui/             # Shared React component library (Tailwind CSS + SVG icons)
 │   ├── auth/           # Authentication utilities
 │   ├── eslint-config/  # Shared ESLint configuration
 │   └── typescript-config/ # Shared TypeScript configuration
+├── docs/
+│   └── MUI_TO_TAILWIND_MIGRATION.md # Comprehensive migration & interview documentation
 ├── turbo.json          # Turborepo pipeline config
 └── package.json        # Root workspace config
 ```
@@ -31,14 +33,15 @@ next_courseapp/
 - Secure admin **signup & login** (JWT-based)
 - **Create, update, and delete** courses
 - Upload course thumbnails, set pricing, category, level & tags
-- View all created courses with analytics (students enrolled, rating)
+- Interactive **curriculum and lesson manager** with Markdown content editor
+- View all created courses with live card previews and status toggles
 
 ### 👤 User Portal
 - User **signup & login** (JWT + NextAuth)
-- Browse all published courses with rich metadata
-- **Purchase courses** via Razorpay payment gateway
-- Access **purchased courses** and view lesson content
-- Track enrolled courses in "My Courses"
+- Browse all published courses with rich metadata and search filtering
+- **Purchase courses** via Razorpay payment gateway integration
+- Access **purchased courses** with sidebar lesson navigation and Markdown reader
+- Track learning progress across enrolled courses in "My Learning"
 
 ### 📦 Course Model
 Each course supports:
@@ -55,15 +58,28 @@ Each course supports:
 
 | Layer | Technology |
 |-------|-----------|
-| **Framework** | [Next.js 16](https://nextjs.org/) |
+| **Framework** | [Next.js 16](https://nextjs.org/) (Turbopack) |
 | **Language** | TypeScript |
+| **Styling** | [Tailwind CSS 3](https://tailwindcss.com/) + [PostCSS](https://postcss.org/) + Autoprefixer |
 | **Database** | MongoDB + [Mongoose](https://mongoosejs.com/) |
-| **Auth** | JWT + [NextAuth.js](https://next-auth.js.org/) |
+| **Auth** | JWT + [NextAuth.js](https://next-auth.js.org/) + `js-cookie` |
 | **State Management** | [Recoil](https://recoiljs.org/) |
 | **Payments** | [Razorpay](https://razorpay.com/) |
-| **UI Components** | MUI Icons + Custom `ui` package |
+| **UI Components** | Custom `packages/ui` component suite with zero-dependency SVG icons |
 | **Monorepo** | [Turborepo](https://turbo.build/) |
 | **Package Manager** | npm workspaces (npm ≥ 11) |
+
+---
+
+## 🎨 Styling & Architecture: MUI to Tailwind CSS Migration
+
+The presentation layer was migrated from Material UI (MUI v7) and Emotion to **Tailwind CSS**:
+- **Zero Runtime Style Engine**: Replaced Emotion runtime stylesheet injection with static CSS compiled at build time.
+- **Pure Utility Styling**: Converted MUI `Box`, `Stack`, `Grid`, `Card`, and `Typography` to standard semantic HTML elements styled with Tailwind classes.
+- **Zero-Dependency SVG Icons**: Replaced `@mui/icons-material` with an internal, lightweight SVG icon collection in `packages/ui/src/components/icons.tsx`.
+- **Preserved Business Logic**: 100% of routes, API handlers, Recoil state, JWT/cookie authentication, and role-based navigation logic were preserved.
+
+📖 *For a complete architecture breakdown, before/after code examples, challenges, trade-offs, and interview Q&A, see [`docs/MUI_TO_TAILWIND_MIGRATION.md`](docs/MUI_TO_TAILWIND_MIGRATION.md).*
 
 ---
 
@@ -125,15 +141,20 @@ All API routes live under `apps/admin/src/pages/api/`.
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| `POST` | `/api/auth/signup` | Admin/User registration |
-| `POST` | `/api/auth/login` | Admin/User login |
-| `GET/POST` | `/api/auth/[...nextauth]` | NextAuth handler |
-| `GET` | `/api/admin/courses` | Get all courses (admin) |
+| `POST` | `/api/admin/signup` | Admin registration |
+| `POST` | `/api/admin/signin` | Admin login |
+| `GET` | `/api/admin/me` | Current authenticated admin info |
+| `GET` | `/api/admin/courses` | Get all courses / course by ID (admin) |
 | `POST` | `/api/admin/createCourses` | Create a new course |
-| `PUT` | `/api/admin/updateCourse` | Update course details |
+| `PUT` | `/api/admin/updateCourse` | Update course details and lesson curriculum |
 | `DELETE` | `/api/admin/deleteCourse` | Delete a course |
-| `GET` | `/api/user/courses` | Get all published courses |
+| `POST` | `/api/user/signup` | User/learner registration |
+| `POST` | `/api/user/signin` | User/learner login |
+| `GET` | `/api/user/me` | Current authenticated user info |
+| `GET` | `/api/user/courses` | Get all published courses / course by ID |
+| `GET` | `/api/user/mycourse` | Get user's purchased courses |
 | `POST` | `/api/payment/create-order` | Create Razorpay payment order |
+| `POST` | `/api/payment/verify-payment` | Verify Razorpay payment signature & unlock course |
 
 ---
 
@@ -146,17 +167,21 @@ Mongoose schemas and models:
 - `Course` — full course document with embedded `Lesson` subdocuments
 
 ### `packages/store`
-Recoil atoms for client-side state:
-- `userAtom` — logged-in user info
-- `coursesAtom` — list of all courses
-- `purchasedCoursesAtom` — user's purchased courses
+Recoil atoms and shared TypeScript types:
+- `userState` — logged-in learner info
+- `adminState` — logged-in admin info
+- `coursesState` — list of all courses
+- `purchasedCoursesState` — learner's purchased courses
+- Shared types and constants (`CourseFormat`, `LessonFormat`, `CATEGORIES`, `LEVELS`, `LANGUAGES`)
 
 ### `packages/ui`
-Shared React components:
-- `AppBar` — top navigation bar
-- `CourseCard` — course display card
-- `Login` / `Signup` forms
-- `FeatureItem`, `RoleCard`, icons
+Shared React presentation components styled with Tailwind CSS:
+- `Appbar` — sticky top navigation with role-based links and search
+- `Coursecard` / `CoursecardAdmin` — responsive course cards with status tags
+- `Login` / `Signup` — accessible authentication forms with show/hide password toggle
+- `About` — responsive company information card
+- `RoleCard` / `FeatureItem` — landing page presentation components
+- `icons.tsx` — zero-dependency SVG icon suite
 
 ### `packages/auth`
 JWT utility functions for signing and verifying tokens.
@@ -171,8 +196,7 @@ Run from the **project root**:
 |---------|-------------|
 | `npm run dev` | Start all apps in development mode |
 | `npm run build` | Build all apps and packages |
-| `npm run lint` | Lint all workspaces |
-| `npm run format` | Format all `.ts`, `.tsx`, `.md` files with Prettier |
+| `npm run lint` | Lint all workspaces with ESLint |
 | `npm run check-types` | TypeScript type-check across all packages |
 
 ---
@@ -203,24 +227,11 @@ turbo build
 
 ## 💳 Payment Flow
 
-1. User clicks "Purchase Course"
+1. User clicks "Buy Course"
 2. Frontend calls `POST /api/payment/create-order` → Razorpay order created
 3. Razorpay checkout opens in browser
-4. On success → course added to user's `courses` array in MongoDB
-
----
-
-## 🔄 Rolling Back
-
-A git tag is maintained before major pushes for safe rollback:
-
-```bash
-# View available tags
-git tag
-
-# Rollback to a previous stable version
-git checkout v-before-ui-overhaul
-```
+4. On success → frontend sends signature to `POST /api/payment/verify-payment`
+5. Server verifies signature → course added to user's `purchasedCourses` array in MongoDB
 
 ---
 
@@ -241,5 +252,5 @@ This project is for educational purposes. Feel free to use and modify it.
 ---
 
 <div align="center">
-  <p>Built with ❤️ using Next.js & Turborepo</p>
+  <p>Built with ❤️ using Next.js, Tailwind CSS & Turborepo</p>
 </div>
