@@ -349,11 +349,7 @@ export default function Home() {
                     </Typography>
                   </CardContent>
                   <CardActions sx={{ px: 3, pb: 3, pt: 0 }}>
-                    {/* TODO:
-                        Temporary route.
-                        This currently redirects to /admin/mycourses.
-                        Later it should navigate to /admin/courses, which will display all courses.
-                        My Courses will remain a page showing only the logged-in admin's courses. */}
+                
                     <Button
                       variant="contained"
                       color="primary"

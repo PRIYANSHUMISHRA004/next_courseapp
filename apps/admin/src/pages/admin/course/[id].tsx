@@ -21,7 +21,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { CourseFormat, LessonFormat } from "store";
+import { CourseFormat, LessonFormat, CATEGORIES, LEVELS, LANGUAGES } from "store";
 
 // Icons
 import AddRounded from "@mui/icons-material/AddRounded";
@@ -30,36 +30,6 @@ import KeyboardArrowUpRounded from "@mui/icons-material/KeyboardArrowUpRounded";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
 import SaveRounded from "@mui/icons-material/SaveRounded";
 import EditRounded from "@mui/icons-material/EditRounded";
-
-// ── Constants ────────────────────────────────────────────────────────────────
-const CATEGORIES = [
-  "Development",
-  "Design",
-  "Business",
-  "Marketing",
-  "Finance",
-  "IT & Software",
-  "Personal Development",
-  "Photography",
-  "Music",
-  "Health & Fitness",
-  "Other",
-];
-
-const LEVELS = ["Beginner", "Intermediate", "Advanced"] as const;
-
-const LANGUAGES = [
-  "English",
-  "Hindi",
-  "Gujarati",
-  "Tamil",
-  "Telugu",
-  "Marathi",
-  "Bengali",
-  "Kannada",
-  "Malayalam",
-  "Other",
-];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

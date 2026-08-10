@@ -34,3 +34,27 @@ export interface CourseFormat {
   createdAt?: string;
   updatedAt?: string;
 }
+
+// ── Shared constants for Categories, Levels and Languages ──────────────────────
+export const CATEGORIES = [
+  "Web Development",
+  "Frontend",
+  "Backend",
+  "Full Stack",
+  "AI & Machine Learning",
+  "Data Structures & Algorithms",
+  "Database",
+  "DevOps",
+  "Cloud Computing",
+  "Mobile Development",
+  "Cyber Security",
+  "Programming Languages",
+  "Other",
+] as const;
+
+export const LEVELS = ["Beginner", "Intermediate", "Advanced"] as const;
+
+export const LANGUAGES = [
+  "English",
+  "Hindi",
+] as const;

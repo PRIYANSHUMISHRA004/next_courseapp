@@ -18,7 +18,7 @@ export default async function handler(
     const adminData = verifyToken(req, process.env.ADMIN_SECRET!);
 
     const { id ,mine} = req.query;
-    //const { mine } = req.query;
+ 
 
     if (mine === "true") {
       const admin = await Admin.findOne({

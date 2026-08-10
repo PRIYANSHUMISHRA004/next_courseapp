@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { userState } from "store";
+
 
 interface InitUserProps {
   apiUrl: string;

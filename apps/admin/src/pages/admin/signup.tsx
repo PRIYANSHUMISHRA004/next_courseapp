@@ -78,7 +78,7 @@ export default function SignupPage() {
                 <LaunchRounded />
               </Box>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                Build dynamic lessons with video and descriptions
+                Build dynamic lessons with descriptions
               </Typography>
             </Stack>
             <Stack direction="row" spacing={2.5} alignItems="center">

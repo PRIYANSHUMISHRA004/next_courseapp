@@ -23,36 +23,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Head from "next/head";
-
-// ── Constants ────────────────────────────────────────────────────────────────
-const CATEGORIES = [
-  "Development",
-  "Design",
-  "Business",
-  "Marketing",
-  "Finance",
-  "IT & Software",
-  "Personal Development",
-  "Photography",
-  "Music",
-  "Health & Fitness",
-  "Other",
-];
-
-const LEVELS = ["Beginner", "Intermediate", "Advanced"] as const;
-
-const LANGUAGES = [
-  "English",
-  "Hindi",
-  "Gujarati",
-  "Tamil",
-  "Telugu",
-  "Marathi",
-  "Bengali",
-  "Kannada",
-  "Malayalam",
-  "Other",
-];
+import { CATEGORIES, LEVELS, LANGUAGES } from "store";
 
 // ── Helper ───────────────────────────────────────────────────────────────────
 /** Section label above each field */
