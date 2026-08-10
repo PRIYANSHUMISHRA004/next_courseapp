@@ -1,23 +1,4 @@
-import {
-  Box,
-  Button,
-  Chip,
-  Container,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  Switch,
-  TextField,
-  Typography,
-} from "@mui/material";
-import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
-import { Coursecard } from "ui";
+import { Coursecard, AutoStoriesIcon } from "ui";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
@@ -25,27 +6,15 @@ import { useState } from "react";
 import Head from "next/head";
 import { CATEGORIES, LEVELS, LANGUAGES, type CourseFormat } from "store";
 
-// ── Helper ───────────────────────────────────────────────────────────────────
 /** Section label above each field */
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <Typography
-      variant="caption"
-      sx={{
-        fontWeight: 700,
-        color: "text.secondary",
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-        display: "block",
-        mb: 0.8,
-      }}
-    >
+    <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
       {children}
-    </Typography>
+    </label>
   );
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
 export default function AddCourse() {
   const [course, setCourse] = useState({
     title: "",
@@ -128,7 +97,7 @@ export default function AddCourse() {
   const previewCourse: CourseFormat[] = [
     {
       _id: "preview",
-      title: course.title,
+      title: course.title || "Course Title Preview",
       description: course.description,
       price: course.price,
       imageLink: course.imageLink,
@@ -151,349 +120,286 @@ export default function AddCourse() {
         <title>Create Course | Admin Portal</title>
       </Head>
 
-      <Box sx={{ minHeight: "100vh", bgcolor: "grey.50", py: { xs: 4, md: 6 } }}>
-        <Container maxWidth="lg">
+      <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* ── Page Header ── */}
-          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 4 }}>
-            <AutoStoriesRoundedIcon sx={{ color: "primary.main", fontSize: "2rem" }} />
-            <Box>
-              <Typography
-                variant="h4"
-                component="h1"
-                sx={{ fontWeight: 800, color: "text.primary", letterSpacing: "-0.02em" }}
-              >
+          <div className="flex items-center gap-3.5 mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <AutoStoriesIcon className="w-7 h-7" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 Create New Course
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.3 }}>
+              </h1>
+              <p className="text-sm text-slate-500 mt-0.5">
                 Fill in the details on the left — the preview updates live on the right.
-              </Typography>
-            </Box>
-          </Stack>
+              </p>
+            </div>
+          </div>
 
           {/* ── Two-column layout ── */}
-          <Grid container spacing={4} alignItems="flex-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
             {/* ════════════════════════════════
-                LEFT COLUMN — Form (65%)
+                LEFT COLUMN — Form (7 cols)
             ════════════════════════════════ */}
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Paper
-                elevation={0}
-                sx={{
-                  borderRadius: 4,
-                  border: "1px solid",
-                  borderColor: "divider",
-                  bgcolor: "background.paper",
-                  overflow: "hidden",
-                }}
-              >
-                {/* Form header */}
-                <Box sx={{ px: { xs: 3, md: 4 }, pt: { xs: 3, md: 4 }, pb: 2 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "text.primary" }}>
-                    Course Details
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    All fields with * are required.
-                  </Typography>
-                </Box>
+            <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+              {/* Form header */}
+              <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4">
+                <h2 className="text-lg font-bold text-slate-900">
+                  Course Details
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  All fields with * are required.
+                </p>
+              </div>
 
-                <Divider />
+              <hr className="border-slate-200" />
 
-                <Stack spacing={3} sx={{ px: { xs: 3, md: 4 }, py: 3 }}>
+              <div className="p-6 sm:p-8 space-y-6">
 
-                  {/* ── Course Title ── */}
-                  <Box>
-                    <FieldLabel>Course Title *</FieldLabel>
-                    <TextField
-                      fullWidth
-                      placeholder="e.g. Complete React Developer Bootcamp"
-                      value={course.title}
-                      onChange={(e) => setCourse({ ...course, title: e.target.value })}
-                      InputProps={{ sx: { borderRadius: 2.5 } }}
-                      helperText="Give your course a clear, searchable title"
-                    />
-                  </Box>
+                {/* ── Course Title ── */}
+                <div>
+                  <FieldLabel>Course Title *</FieldLabel>
+                  <input
+                    type="text"
+                    placeholder="e.g. Complete React Developer Bootcamp"
+                    value={course.title}
+                    onChange={(e) => setCourse({ ...course, title: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                  />
+                  <span className="text-xs text-slate-400 mt-1 block">
+                    Give your course a clear, searchable title
+                  </span>
+                </div>
 
-                  {/* ── Description ── */}
-                  <Box>
-                    <FieldLabel>Description</FieldLabel>
-                    <TextField
-                      fullWidth
-                      multiline
-                      rows={4}
-                      placeholder="Describe what students will learn, prerequisites, and outcomes..."
-                      value={course.description}
-                      onChange={(e) => setCourse({ ...course, description: e.target.value })}
-                      InputProps={{ sx: { borderRadius: 2.5 } }}
-                      helperText="A compelling description improves enrollment"
-                    />
-                  </Box>
+                {/* ── Description ── */}
+                <div>
+                  <FieldLabel>Description</FieldLabel>
+                  <textarea
+                    rows={4}
+                    placeholder="Describe what students will learn, prerequisites, and outcomes..."
+                    value={course.description}
+                    onChange={(e) => setCourse({ ...course, description: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                  />
+                  <span className="text-xs text-slate-400 mt-1 block">
+                    A compelling description improves enrollment
+                  </span>
+                </div>
 
-                  {/* ── Price ── */}
-                  <Box>
-                    <FieldLabel>Price (₹)</FieldLabel>
-                    <TextField
-                      fullWidth
-                      type="number"
-                      placeholder="0"
-                      value={course.price}
+                {/* ── Price ── */}
+                <div>
+                  <FieldLabel>Price (₹)</FieldLabel>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="0"
+                    value={course.price}
+                    onChange={(e) =>
+                      setCourse({ ...course, price: Number(e.target.value) })
+                    }
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                  />
+                  <span className="text-xs text-slate-400 mt-1 block">
+                    Set to 0 for a free course
+                  </span>
+                </div>
+
+                {/* ── Image URL ── */}
+                <div>
+                  <FieldLabel>Cover Image URL</FieldLabel>
+                  <input
+                    type="text"
+                    placeholder="https://example.com/course-thumbnail.jpg"
+                    value={course.imageLink}
+                    onChange={(e) => setCourse({ ...course, imageLink: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                  />
+                  <span className="text-xs text-slate-400 mt-1 block">
+                    Paste a direct image URL — preview updates on the right. Also used as thumbnail.
+                  </span>
+                </div>
+
+                <hr className="border-slate-200" />
+
+                {/* ── Category / Level / Language row ── */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* Category */}
+                  <div>
+                    <FieldLabel>Category</FieldLabel>
+                    <select
+                      value={course.category}
+                      onChange={(e) => setCourse({ ...course, category: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                    >
+                      <option value="">None</option>
+                      {CATEGORIES.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Level */}
+                  <div>
+                    <FieldLabel>Level</FieldLabel>
+                    <select
+                      value={course.level}
                       onChange={(e) =>
-                        setCourse({ ...course, price: Number(e.target.value) })
+                        setCourse({
+                          ...course,
+                          level: e.target.value as typeof course.level,
+                        })
                       }
-                      InputProps={{ sx: { borderRadius: 2.5 } }}
-                      helperText="Set to 0 for a free course"
-                    />
-                  </Box>
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                    >
+                      <option value="">None</option>
+                      {LEVELS.map((l) => (
+                        <option key={l} value={l}>{l}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                  {/* ── Image URL ── */}
-                  <Box>
-                    <FieldLabel>Cover Image URL</FieldLabel>
-                    <TextField
-                      fullWidth
-                      placeholder="https://example.com/course-thumbnail.jpg"
-                      value={course.imageLink}
-                      onChange={(e) => setCourse({ ...course, imageLink: e.target.value })}
-                      InputProps={{ sx: { borderRadius: 2.5 } }}
-                      helperText="Paste a direct image URL — preview updates on the right. Also used as thumbnail."
-                    />
-                  </Box>
+                  {/* Language */}
+                  <div>
+                    <FieldLabel>Language</FieldLabel>
+                    <select
+                      value={course.language}
+                      onChange={(e) => setCourse({ ...course, language: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                    >
+                      <option value="">None</option>
+                      {LANGUAGES.map((lang) => (
+                        <option key={lang} value={lang}>{lang}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-                  <Divider />
+                {/* ── Duration ── */}
+                <div>
+                  <FieldLabel>Duration</FieldLabel>
+                  <input
+                    type="text"
+                    placeholder="e.g. 12 hours, 6 weeks"
+                    value={course.duration}
+                    onChange={(e) => setCourse({ ...course, duration: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                  />
+                  <span className="text-xs text-slate-400 mt-1 block">
+                    Estimated time to complete the course
+                  </span>
+                </div>
 
-                  {/* ── Category / Level / Language row ── */}
-                  <Grid container spacing={2}>
+                {/* ── Tags ── */}
+                <div>
+                  <FieldLabel>Tags</FieldLabel>
+                  <input
+                    type="text"
+                    placeholder="e.g. react, javascript, web development"
+                    value={course.tagsRaw}
+                    onChange={(e) => setCourse({ ...course, tagsRaw: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                  />
+                  <span className="text-xs text-slate-400 mt-1 block">
+                    Comma-separated keywords to improve discoverability
+                  </span>
+                  {/* Live tag chips preview */}
+                  {course.tagsRaw.trim() && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {course.tagsRaw
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean)
+                        .map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                    </div>
+                  )}
+                </div>
 
-                    {/* Category */}
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <FieldLabel>Category</FieldLabel>
-                      <FormControl fullWidth>
-                        <InputLabel>Category</InputLabel>
-                        <Select
-                          label="Category"
-                          value={course.category}
-                          onChange={(e) =>
-                            setCourse({ ...course, category: e.target.value })
-                          }
-                          sx={{ borderRadius: 2.5 }}
-                        >
-                          <MenuItem value=""><em>None</em></MenuItem>
-                          {CATEGORIES.map((c) => (
-                            <MenuItem key={c} value={c}>{c}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
+                <hr className="border-slate-200" />
 
-                    {/* Level */}
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <FieldLabel>Level</FieldLabel>
-                      <FormControl fullWidth>
-                        <InputLabel>Level</InputLabel>
-                        <Select
-                          label="Level"
-                          value={course.level}
-                          onChange={(e) =>
-                            setCourse({
-                              ...course,
-                              level: e.target.value as typeof course.level,
-                            })
-                          }
-                          sx={{ borderRadius: 2.5 }}
-                        >
-                          <MenuItem value=""><em>None</em></MenuItem>
-                          {LEVELS.map((l) => (
-                            <MenuItem key={l} value={l}>{l}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-
-                    {/* Language */}
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <FieldLabel>Language</FieldLabel>
-                      <FormControl fullWidth>
-                        <InputLabel>Language</InputLabel>
-                        <Select
-                          label="Language"
-                          value={course.language}
-                          onChange={(e) =>
-                            setCourse({ ...course, language: e.target.value })
-                          }
-                          sx={{ borderRadius: 2.5 }}
-                        >
-                          <MenuItem value=""><em>None</em></MenuItem>
-                          {LANGUAGES.map((lang) => (
-                            <MenuItem key={lang} value={lang}>{lang}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  </Grid>
-
-                  {/* ── Duration ── */}
-                  <Box>
-                    <FieldLabel>Duration</FieldLabel>
-                    <TextField
-                      fullWidth
-                      placeholder="e.g. 12 hours, 6 weeks"
-                      value={course.duration}
-                      onChange={(e) => setCourse({ ...course, duration: e.target.value })}
-                      InputProps={{ sx: { borderRadius: 2.5 } }}
-                      helperText="Estimated time to complete the course"
-                    />
-                  </Box>
-
-                  {/* ── Tags ── */}
-                  <Box>
-                    <FieldLabel>Tags</FieldLabel>
-                    <TextField
-                      fullWidth
-                      placeholder="e.g. react, javascript, web development"
-                      value={course.tagsRaw}
-                      onChange={(e) => setCourse({ ...course, tagsRaw: e.target.value })}
-                      InputProps={{ sx: { borderRadius: 2.5 } }}
-                      helperText="Comma-separated keywords to improve discoverability"
-                    />
-                    {/* Live tag chips preview */}
-                    {course.tagsRaw.trim() && (
-                      <Stack direction="row" flexWrap="wrap" gap={0.8} sx={{ mt: 1 }}>
-                        {course.tagsRaw
-                          .split(",")
-                          .map((t) => t.trim())
-                          .filter(Boolean)
-                          .map((tag) => (
-                            <Chip
-                              key={tag}
-                              label={tag}
-                              size="small"
-                              variant="outlined"
-                              color="primary"
-                              sx={{ fontSize: "0.72rem" }}
-                            />
-                          ))}
-                      </Stack>
-                    )}
-                  </Box>
-
-                  <Divider />
-
-                  {/* ── Publish Toggle ── */}
-                  <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary" }}>
-                        Publish Course
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Students can enroll once the course is published
-                      </Typography>
-                    </Box>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={course.published}
-                          onChange={(e) =>
-                            setCourse({ ...course, published: e.target.checked })
-                          }
-                          color="primary"
-                        />
+                {/* ── Publish Toggle ── */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm font-bold text-slate-900 block">
+                      Publish Course
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      Students can enroll once the course is published
+                    </span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={course.published}
+                      onChange={(e) =>
+                        setCourse({ ...course, published: e.target.checked })
                       }
-                      label={
-                        <Chip
-                          label={course.published ? "Live" : "Draft"}
-                          size="small"
-                          color={course.published ? "success" : "default"}
-                          sx={{ fontWeight: 700, fontSize: "0.7rem" }}
-                        />
-                      }
-                      labelPlacement="start"
-                      sx={{ ml: 0 }}
+                      className="sr-only peer"
                     />
-                  </Stack>
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <span
+                      className={`ml-3 text-xs font-bold px-2 py-0.5 rounded-full ${
+                        course.published
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {course.published ? "Live" : "Draft"}
+                    </span>
+                  </label>
+                </div>
 
-                </Stack>
+              </div>
 
-                {/* ── Footer Actions ── */}
-                <Divider />
-                <Box
-                  sx={{
-                    px: { xs: 3, md: 4 },
-                    py: 2.5,
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    gap: 2,
-                    bgcolor: "background.paper",
-                  }}
+              {/* ── Footer Actions ── */}
+              <hr className="border-slate-200" />
+              <div className="px-6 sm:px-8 py-4 bg-slate-50/50 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="px-5 py-2.5 border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-sm transition-colors"
                 >
-                  <Button
-                    variant="outlined"
-                    color="inherit"
-                    onClick={() => router.back()}
-                    sx={{
-                      borderRadius: 2.5,
-                      textTransform: "none",
-                      fontWeight: 600,
-                      px: 3,
-                      borderColor: "divider",
-                      color: "text.secondary",
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={addCourse}
-                    disabled={loading}
-                    sx={{
-                      borderRadius: 2.5,
-                      textTransform: "none",
-                      fontWeight: 700,
-                      px: 4,
-                      boxShadow: "0 4px 12px rgba(37, 99, 235, 0.18)",
-                    }}
-                  >
-                    {loading ? "Creating..." : "Create Course"}
-                  </Button>
-                </Box>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={addCourse}
+                  disabled={loading}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-xl text-sm shadow-sm shadow-blue-500/20 transition-all active:scale-[0.99]"
+                >
+                  {loading ? "Creating..." : "Create Course"}
+                </button>
+              </div>
 
-              </Paper>
-            </Grid>
+            </div>
 
             {/* ════════════════════════════════
-                RIGHT COLUMN — Live Preview (35%)
-                Sticky so it stays visible while scrolling the form.
+                RIGHT COLUMN — Live Preview (5 cols)
             ════════════════════════════════ */}
-            <Grid size={{ xs: 12, md: 5 }}>
-              <Box sx={{ position: "sticky", top: 24 }}>
+            <div className="lg:col-span-5 lg:sticky lg:top-24">
+              <span className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">
+                Live Preview
+              </span>
 
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontWeight: 700,
-                    color: "text.secondary",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    display: "block",
-                    mb: 1.5,
-                  }}
-                >
-                  Live Preview
-                </Typography>
+              <Coursecard
+                courses={previewCourse}
+                onClick={() => {}}
+              />
+            </div>
 
-                {/* Pass the current form state as a single-item array.
-                    _id is a preview stub — the course hasn't been saved yet.
-                    onClick is a no-op since there's no real course to navigate to. */}
-                <Coursecard
-                  courses={previewCourse}
-                  onClick={() => {}}
-                />
+          </div>
 
-              </Box>
-            </Grid>
-
-          </Grid>
-        </Container>
-      </Box>
+        </div>
+      </div>
     </>
   );
 }

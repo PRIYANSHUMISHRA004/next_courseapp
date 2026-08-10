@@ -1,5 +1,4 @@
 import React from "react";
-import { Card, CardHeader, CardContent, CardActions, Button, Avatar, Stack } from "@mui/material";
 import { FeatureItem } from "./FeatureItem";
 
 interface RoleCardProps {
@@ -24,119 +23,53 @@ export const RoleCard = ({
   accentColor,
 }: RoleCardProps) => {
   return (
-    <Card
-      variant="outlined"
-      sx={{
-        flex: 1,
-        width: "100%",
-        maxWidth: 420,
-        bgcolor: "background.paper",
-        borderColor: "divider",
-        borderRadius: 4,
-        display: "flex",
-        flexDirection: "column",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
-        "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: (theme) => theme.shadows[4],
-          borderColor: accentColor,
-        },
+    <div
+      className="flex-1 w-full max-w-[420px] bg-white border border-slate-200/80 rounded-2xl flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:border-blue-400 group"
+      style={{
+        borderColor: undefined,
       }}
     >
-      <CardHeader
-        avatar={
-          <Avatar
-            variant="rounded"
-            sx={{
-              width: 48,
-              height: 48,
-              borderRadius: 2.5,
-              bgcolor: `${accentColor}15`,
-              color: accentColor,
-            }}
-          >
-            {icon}
-          </Avatar>
-        }
-        title={title}
-        titleTypographyProps={{
-          variant: "h6",
-          sx: {
-            fontWeight: 700,
-            color: "text.primary",
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-          },
-        }}
-        subheader={description}
-        subheaderTypographyProps={{
-          variant: "body2",
-          sx: {
-            color: "text.secondary",
-            lineHeight: 1.4,
-            mt: 0.5,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-          },
-        }}
-        sx={{
-          p: 3,
-          pb: 0,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          "& .MuiCardHeader-avatar": {
-            mr: 0,
-            mb: 2,
-          },
-          "& .MuiCardHeader-content": {
-            width: "100%",
-          },
-        }}
-      />
+      {/* Card Header */}
+      <div className="p-6 pb-0 flex flex-col items-start">
+        <div
+          className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-105"
+          style={{
+            backgroundColor: `${accentColor}15`,
+            color: accentColor,
+          }}
+        >
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+          {title}
+        </h3>
+        <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+          {description}
+        </p>
+      </div>
 
-      <CardContent
-        sx={{
-          p: 3,
-          pt: 1.5,
-          pb: 0,
-          flexGrow: 1,
-        }}
-      >
-        <Stack spacing={1.5} sx={{ mb: 2 }}>
+      {/* Card Content - Feature List */}
+      <div className="p-6 pt-4 pb-0 flex-1">
+        <div className="space-y-3 mb-6">
           {features.map((feature, idx) => (
             <FeatureItem key={idx} text={feature} />
           ))}
-        </Stack>
-      </CardContent>
+        </div>
+      </div>
 
-      <CardActions
-        sx={{
-          p: 3,
-          pt: 1.5,
-        }}
-      >
-        <Button
-          variant="contained"
-          fullWidth
+      {/* Card Actions - Button */}
+      <div className="p-6 pt-4">
+        <button
+          type="button"
           onClick={onClick}
-          sx={{
-            py: 1.2,
-            borderRadius: 2,
-            fontSize: "0.9rem",
-            fontWeight: 600,
-            textTransform: "none",
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-            bgcolor: buttonColor || accentColor,
-            boxShadow: "none",
-            "&:hover": {
-              bgcolor: buttonColor || accentColor,
-              filter: "brightness(0.9)",
-              boxShadow: "none",
-            },
+          className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-white transition-all shadow-sm hover:brightness-95 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-offset-2"
+          style={{
+            backgroundColor: buttonColor || accentColor,
           }}
         >
           {buttonText}
-        </Button>
-      </CardActions>
-    </Card>
+        </button>
+      </div>
+    </div>
   );
 };

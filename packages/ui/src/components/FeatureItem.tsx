@@ -1,6 +1,5 @@
 import React from "react";
-import { Stack, Typography } from "@mui/material";
-import CheckCircleRounded from "@mui/icons-material/CheckCircleRounded";
+import { CheckCircleIcon } from "./icons";
 
 interface FeatureItemProps {
   text: string;
@@ -8,24 +7,11 @@ interface FeatureItemProps {
 
 export const FeatureItem = ({ text }: FeatureItemProps) => {
   return (
-    <Stack direction="row" alignItems="center" spacing={1.5}>
-      <CheckCircleRounded
-        sx={{
-          fontSize: "1.2rem",
-          color: "primary.light",
-          flexShrink: 0,
-        }}
-      />
-      <Typography
-        variant="body2"
-        sx={{
-          color: "text.primary",
-          fontWeight: 500,
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-        }}
-      >
+    <div className="flex items-center gap-3">
+      <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0" />
+      <span className="text-sm font-medium text-slate-800">
         {text}
-      </Typography>
-    </Stack>
+      </span>
+    </div>
   );
 };

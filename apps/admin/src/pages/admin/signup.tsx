@@ -1,16 +1,9 @@
 import axios from "axios";
-import { Signup } from "ui";
-import { adminState } from "store";
+import { Signup, SchoolIcon, RocketIcon, GlobeIcon } from "ui";
+import { adminState, userSignupData } from "store";
 import { useSetRecoilState } from "recoil";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
-import { userSignupData } from "store";
-import { Grid, Typography, Stack, Box } from "@mui/material";
-
-// Icons
-import SchoolRounded from "@mui/icons-material/SchoolRounded";
-import LaunchRounded from "@mui/icons-material/LaunchRounded";
-import PublicRounded from "@mui/icons-material/PublicRounded";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -41,71 +34,54 @@ export default function SignupPage() {
   }
 
   return (
-    <Grid container sx={{ minHeight: "100vh", bgcolor: "grey.50" }}>
+    <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen bg-slate-50">
       {/* Left Column: New Instructors Panel */}
-      <Grid
-        size={{ xs: 0, md: 6 }}
-        sx={{
-          display: { xs: "none", md: "flex" },
-          flexDirection: "column",
-          justifyContent: "center",
-          bgcolor: "primary.main",
-          backgroundImage: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", // Darker slate gradients for onboarding
-          color: "primary.contrastText",
-          p: 6,
-        }}
-      >
-        <Stack spacing={4} sx={{ maxWidth: 480, mx: "auto" }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <SchoolRounded sx={{ fontSize: "3rem" }} />
-            <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: "-0.03em" }}>
+      <div className="hidden md:flex flex-col justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white p-12 lg:p-16">
+        <div className="max-w-md mx-auto space-y-8">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
+              <SchoolIcon className="w-8 h-8 text-blue-400" />
+            </div>
+            <span className="text-3xl font-black tracking-tight">
               Coursecean
-            </Typography>
-          </Stack>
-          
-          <Stack spacing={2}>
-            <Typography variant="h3" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
-              Share your knowledge with the world.
-            </Typography>
-            <Typography variant="body1" sx={{ opacity: 0.85, lineHeight: 1.6 }}>
-              Join a global community of expert instructors. Create and sell comprehensive online courses, build your professional personal brand, and earn revenue from students around the globe.
-            </Typography>
-          </Stack>
+            </span>
+          </div>
 
-          <Stack spacing={3} sx={{ mt: 2 }}>
-            <Stack direction="row" spacing={2.5} alignItems="center">
-              <Box sx={{ bgcolor: "rgba(255,255,255,0.08)", p: 1, borderRadius: 2, display: "flex" }}>
-                <LaunchRounded />
-              </Box>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          <div className="space-y-3">
+            <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight tracking-tight">
+              Share your knowledge with the world.
+            </h1>
+            <p className="text-slate-300 leading-relaxed text-sm lg:text-base">
+              Join a global community of expert instructors. Create and sell comprehensive online courses, build your professional personal brand, and earn revenue from students around the globe.
+            </p>
+          </div>
+
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                <RocketIcon className="w-5 h-5 text-blue-400" />
+              </div>
+              <span className="text-sm font-semibold text-slate-200">
                 Build dynamic lessons with descriptions
-              </Typography>
-            </Stack>
-            <Stack direction="row" spacing={2.5} alignItems="center">
-              <Box sx={{ bgcolor: "rgba(255,255,255,0.08)", p: 1, borderRadius: 2, display: "flex" }}>
-                <PublicRounded />
-              </Box>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                <GlobeIcon className="w-5 h-5 text-blue-400" />
+              </div>
+              <span className="text-sm font-semibold text-slate-200">
                 Reach millions of global learners looking to level up
-              </Typography>
-            </Stack>
-          </Stack>
-        </Stack>
-      </Grid>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Right Column: Signup Card */}
-      <Grid
-        size={{ xs: 12, md: 6 }}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          p: 3,
-        }}
-      >
+      <div className="flex items-center justify-center p-6 sm:p-10">
         <Signup onClick={onClick} />
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 }
-

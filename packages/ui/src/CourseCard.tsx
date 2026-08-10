@@ -1,5 +1,8 @@
-import { Button, Card, Chip, Stack, Typography } from "@mui/material";
+import React from "react";
 import { CourseFormat } from "store";
+
+const PLACEHOLDER_SRC =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='180' viewBox='0 0 300 180'%3E%3Crect width='300' height='180' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='13' fill='%2394a3b8'%3ENo Image Available%3C/text%3E%3C/svg%3E";
 
 export function CoursecardAdmin({
   courses,
@@ -11,73 +14,52 @@ export function CoursecardAdmin({
   return (
     <>
       {courses.map((course, i) => (
-        <Card
+        <div
           key={course._id ?? i}
-          style={{
-            margin: 10,
-            width: 300,
-            overflow: "hidden",
-          }}
+          className="m-2.5 w-[300px] bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
         >
           <img
-            src={course.imageLink}
+            src={course.imageLink || PLACEHOLDER_SRC}
             alt={course.title}
-            style={{
-              width: "100%",
-              height: 180,
-              objectFit: "cover",
+            className="w-full h-[180px] object-cover shrink-0"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_SRC;
             }}
           />
 
-          <Typography
-            variant="h6"
-            textAlign="center"
-            style={{ marginTop: 10 }}
-          >
+          <h3 className="text-lg font-bold text-slate-800 text-center mt-3 px-3 line-clamp-1">
             {course.title}
-          </Typography>
+          </h3>
 
-          <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            spacing={1.5}
-            style={{ marginTop: 8, padding: "0 12px" }}
-          >
-            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+          <div className="flex items-center justify-center gap-2 mt-2 px-3">
+            <span className="text-base font-semibold text-slate-900">
               ₹{course.price}
-            </Typography>
-            <Chip
-              label={course.published ? "Published" : "Draft"}
-              size="small"
-              color={course.published ? "success" : "default"}
-              sx={{ fontWeight: 700, fontSize: "0.7rem" }}
-            />
-          </Stack>
+            </span>
+            <span
+              className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                course.published
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {course.published ? "Published" : "Draft"}
+            </span>
+          </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              padding: 12,
-            }}
-          >
-            <Button
-              variant="contained"
+          <div className="flex justify-center p-3 mt-auto">
+            <button
+              type="button"
               onClick={() => onClick(course._id)}
+              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors"
             >
               View Details
-            </Button>
+            </button>
           </div>
-        </Card>
+        </div>
       ))}
     </>
   );
 }
-
-// Inline SVG placeholder used when a course image fails to load
-const PLACEHOLDER_SRC =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='180' viewBox='0 0 300 180'%3E%3Crect width='300' height='180' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='13' fill='%2394a3b8'%3ENo Image Available%3C/text%3E%3C/svg%3E";
 
 export function Coursecard({
   courses,
@@ -89,75 +71,48 @@ export function Coursecard({
   return (
     <>
       {courses.map((course, i) => (
-        <Card
+        <div
           key={course._id ?? i}
-          style={{
-            margin: 10,
-            width: 300,
-            overflow: "hidden",
-            // Equal-height: use flex column so all cards in the same row stretch identically
-            display: "flex",
-            flexDirection: "column",
-          }}
+          className="m-2.5 w-[300px] bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
         >
-          {/* Image with onError fallback to prevent broken-image icon */}
           <img
-            src={course.imageLink}
+            src={course.imageLink || PLACEHOLDER_SRC}
             alt={course.title}
-            style={{
-              width: "100%",
-              height: 180,
-              objectFit: "cover",
-              flexShrink: 0,
-            }}
+            className="w-full h-[180px] object-cover shrink-0"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_SRC;
             }}
           />
 
-          <Typography
-            variant="h6"
-            textAlign="center"
-            style={{ marginTop: 10 }}
-          >
+          <h3 className="text-lg font-bold text-slate-800 text-center mt-3 px-3 line-clamp-1">
             {course.title}
-          </Typography>
+          </h3>
 
-          <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            spacing={1.5}
-            style={{ marginTop: 8, padding: "0 12px" }}
-          >
-            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+          <div className="flex items-center justify-center gap-2 mt-2 px-3">
+            <span className="text-base font-semibold text-slate-900">
               ₹{course.price}
-            </Typography>
-            <Chip
-              label={course.published ? "Published" : "Draft"}
-              size="small"
-              color={course.published ? "success" : "default"}
-              sx={{ fontWeight: 700, fontSize: "0.7rem" }}
-            />
-          </Stack>
+            </span>
+            <span
+              className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                course.published
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {course.published ? "Published" : "Draft"}
+            </span>
+          </div>
 
-          {/* Push the button to the bottom so cards with shorter titles align */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              padding: 12,
-              marginTop: "auto",
-            }}
-          >
-            <Button
-              variant="contained"
+          <div className="flex justify-center p-3 mt-auto">
+            <button
+              type="button"
               onClick={() => onClick(course._id)}
+              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors"
             >
               View Course
-            </Button>
+            </button>
           </div>
-        </Card>
+        </div>
       ))}
     </>
   );

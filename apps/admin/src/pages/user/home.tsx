@@ -1,43 +1,28 @@
 "use client";
-import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Chip,
-  Stack,
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
-  LinearProgress,
-  Avatar,
-  Grid,
-} from "@mui/material";
 import { useRecoilValue } from "recoil";
 import { userState, coursesState, purchasedCoursesState } from "store";
 import { CourseFormat } from "store";
 import { useRouter } from "next/router";
 import Head from "next/head";
-
-// Icons
-import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
-import PlayCircleRounded from "@mui/icons-material/PlayCircleRounded";
-import CodeRounded from "@mui/icons-material/CodeRounded";
-import PsychologyRounded from "@mui/icons-material/PsychologyRounded";
-import AccountTreeRounded from "@mui/icons-material/AccountTreeRounded";
-import StorageRounded from "@mui/icons-material/StorageRounded";
-import WebRounded from "@mui/icons-material/WebRounded";
-import SchoolRounded from "@mui/icons-material/SchoolRounded";
-import TrendingUpRounded from "@mui/icons-material/TrendingUpRounded";
+import {
+  ArrowRightIcon,
+  PlayCircleIcon,
+  CodeIcon,
+  BrainIcon,
+  TreeIcon,
+  DatabaseIcon,
+  WebIcon,
+  SchoolIcon,
+  TrendingUpIcon,
+} from "ui";
 
 // ─── Category Data ────────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { label: "Web Development", icon: <WebRounded fontSize="small" />,       color: "#2563eb" },
-  { label: "AI",              icon: <PsychologyRounded fontSize="small" />, color: "#7c3aed" },
-  { label: "DSA",             icon: <AccountTreeRounded fontSize="small" />, color: "#059669" },
-  { label: "Backend",         icon: <StorageRounded fontSize="small" />,    color: "#d97706" },
-  { label: "Frontend",        icon: <CodeRounded fontSize="small" />,       color: "#db2777" },
+  { label: "Web Development", icon: <WebIcon className="w-4 h-4" />,      color: "text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100" },
+  { label: "AI",              icon: <BrainIcon className="w-4 h-4" />,    color: "text-purple-600 bg-purple-50 border-purple-200 hover:bg-purple-100" },
+  { label: "DSA",             icon: <TreeIcon className="w-4 h-4" />,     color: "text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100" },
+  { label: "Backend",         icon: <DatabaseIcon className="w-4 h-4" />, color: "text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100" },
+  { label: "Frontend",        icon: <CodeIcon className="w-4 h-4" />,     color: "text-pink-600 bg-pink-50 border-pink-200 hover:bg-pink-100" },
 ];
 
 // ─── Inline SVG fallback ──────────────────────────────────────────────────────
@@ -55,78 +40,43 @@ function getGreeting(): string {
 // ─── Featured Course Card ─────────────────────────────────────────────────────
 function FeaturedCard({ course, onClick }: { course: CourseFormat; onClick: (id: string) => void }) {
   return (
-    <Card
-      sx={{
-        width: 280,
-        flexShrink: 0,
-        borderRadius: 3,
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        transition: "transform 0.22s ease, box-shadow 0.22s ease",
-        "&:hover": {
-          transform: "translateY(-6px)",
-          boxShadow: "0 16px 40px rgba(0,0,0,0.12)",
-        },
-        border: "1px solid",
-        borderColor: "divider",
-      }}
-    >
-      <CardMedia
-        component="img"
-        height={160}
-        image={course.imageLink || PLACEHOLDER_SRC}
+    <div className="w-[280px] shrink-0 rounded-2xl bg-white border border-slate-200 overflow-hidden flex flex-col transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl shadow-sm">
+      <img
+        src={course.imageLink || PLACEHOLDER_SRC}
         alt={course.title}
-        sx={{ objectFit: "cover", flexShrink: 0 }}
-        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-          e.currentTarget.src = PLACEHOLDER_SRC;
+        className="w-full h-40 object-cover shrink-0"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_SRC;
         }}
       />
-      <CardContent sx={{ p: 2, flexGrow: 1 }}>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontWeight: 700,
-            color: "text.primary",
-            lineHeight: 1.3,
-            mb: 0.5,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}
-        >
-          {course.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          ₹{course.price}
-        </Typography>
-        <Chip
-          label={course.published ? "Published" : "Draft"}
-          size="small"
-          color={course.published ? "success" : "default"}
-          sx={{ fontWeight: 700, fontSize: "0.68rem", height: 20 }}
-        />
-      </CardContent>
-      <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
-        <Button
-          fullWidth
-          variant="contained"
-          size="small"
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="text-base font-bold text-slate-900 leading-snug line-clamp-2 mb-1">
+            {course.title}
+          </h3>
+          <p className="text-sm font-semibold text-slate-600 mb-2">
+            ₹{course.price}
+          </p>
+          <span
+            className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded-full ${
+              course.published
+                ? "bg-emerald-100 text-emerald-800"
+                : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            {course.published ? "Published" : "Draft"}
+          </span>
+        </div>
+
+        <button
+          type="button"
           onClick={() => onClick(course._id)}
-          sx={{
-            borderRadius: 2,
-            textTransform: "none",
-            fontWeight: 600,
-            fontSize: "0.82rem",
-            boxShadow: "none",
-            "&:hover": { boxShadow: "0 4px 12px rgba(37,99,235,0.25)" },
-          }}
+          className="w-full mt-4 py-2 px-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs rounded-xl shadow-sm transition-all"
         >
           View Course
-        </Button>
-      </CardActions>
-    </Card>
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -141,89 +91,48 @@ function ContinueCard({
   onClick: (id: string) => void;
 }) {
   return (
-    <Card
-      sx={{
-        borderRadius: 3,
-        border: "1px solid",
-        borderColor: "divider",
-        overflow: "hidden",
-        transition: "box-shadow 0.2s ease",
-        "&:hover": { boxShadow: "0 8px 24px rgba(0,0,0,0.09)" },
-      }}
-    >
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ p: 2.5 }}>
+    <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center gap-3.5">
         {/* Thumbnail */}
-        <Box
-          component="img"
+        <img
           src={course.imageLink || PLACEHOLDER_SRC}
           alt={course.title}
-          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-            e.currentTarget.src = PLACEHOLDER_SRC;
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_SRC;
           }}
-          sx={{
-            width: 72,
-            height: 72,
-            borderRadius: 2,
-            objectFit: "cover",
-            flexShrink: 0,
-          }}
+          className="w-16 h-16 rounded-xl object-cover shrink-0"
         />
 
         {/* Content */}
-        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              fontWeight: 700,
-              color: "text.primary",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-bold text-slate-900 truncate">
             {course.title}
-          </Typography>
+          </h3>
 
           {/* Progress bar */}
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1, mb: 1.5 }}>
-            <LinearProgress
-              variant="determinate"
-              value={progress}
-              sx={{
-                flexGrow: 1,
-                height: 7,
-                borderRadius: 4,
-                bgcolor: "grey.200",
-                "& .MuiLinearProgress-bar": {
-                  borderRadius: 4,
-                  background: "linear-gradient(90deg, #2563eb, #7c3aed)",
-                },
-              }}
-            />
-            <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", minWidth: 32 }}>
+          <div className="flex items-center gap-2.5 my-2">
+            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+            <span className="text-xs font-bold text-slate-500 min-w-[28px]">
               {progress}%
-            </Typography>
-          </Stack>
+            </span>
+          </div>
 
-          <Button
-            variant="text"
-            size="small"
-            endIcon={<ArrowForwardRounded fontSize="small" />}
+          <button
+            type="button"
             onClick={() => onClick(course._id)}
-            sx={{
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: "0.8rem",
-              p: 0,
-              color: "primary.main",
-              "&:hover": { bgcolor: "transparent", textDecoration: "underline" },
-            }}
+            className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline"
           >
-            Continue →
-          </Button>
-        </Box>
-      </Stack>
-    </Card>
+            <span>Continue</span>
+            <ArrowRightIcon className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -231,7 +140,6 @@ function ContinueCard({
 export default function UserHome() {
   const router = useRouter();
   const user = useRecoilValue(userState);
-  // Read from centralized Recoil state — populated once by InitCourses / InitPurchasedCourses in _app.tsx
   const { courses: featuredCourses } = useRecoilValue(coursesState);
   const { courses: myCourses } = useRecoilValue(purchasedCoursesState);
 
@@ -243,7 +151,6 @@ export default function UserHome() {
     router.push(`/user/course/${id}`);
   }
 
-  // Static progress per purchased course (40% placeholder)
   const STATIC_PROGRESS = 40;
 
   return (
@@ -253,331 +160,176 @@ export default function UserHome() {
         <meta name="description" content="Your personalised learning dashboard on Coursecean." />
       </Head>
 
-      <Box sx={{ bgcolor: "grey.50", minHeight: "100vh", pb: 8 }}>
+      <div className="bg-slate-50 min-h-screen pb-16">
 
         {/* ── Hero ──────────────────────────────────────────────────────── */}
-        <Box
-          sx={{
-            background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #7c3aed 100%)",
-            pt: { xs: 6, md: 8 },
-            pb: { xs: 6, md: 9 },
-            px: 2,
-            position: "relative",
-            overflow: "hidden",
-            "&::before": {
-              content: '""',
-              position: "absolute",
-              inset: 0,
-              background:
-                "radial-gradient(ellipse 80% 60% at 60% 0%, rgba(124,58,237,0.35) 0%, transparent 60%)",
-              pointerEvents: "none",
-            },
-          }}
-        >
-          <Container maxWidth="lg" sx={{ position: "relative" }}>
-            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1.5 }}>
-              <Avatar
-                sx={{
-                  bgcolor: "rgba(255,255,255,0.2)",
-                  width: 44,
-                  height: 44,
-                  fontWeight: 800,
-                  fontSize: "1.1rem",
-                  border: "2px solid rgba(255,255,255,0.4)",
-                }}
-              >
+        <div className="bg-gradient-to-br from-blue-950 via-blue-800 to-purple-900 text-white pt-12 md:pt-16 pb-12 md:pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-white/20 border border-white/40 flex items-center justify-center font-extrabold text-base">
                 {displayName.charAt(0)}
-              </Avatar>
-              <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)", fontWeight: 500 }}>
+              </div>
+              <span className="text-sm font-medium text-blue-100">
                 👋 Welcome back, {displayName}
-              </Typography>
-            </Stack>
+              </span>
+            </div>
 
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 800,
-                color: "#ffffff",
-                lineHeight: 1.15,
-                letterSpacing: "-0.03em",
-                mb: 1.5,
-                fontSize: { xs: "2rem", md: "2.75rem" },
-                fontFamily: "Inter, Roboto, sans-serif",
-              }}
-            >
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight mb-3">
               {getGreeting()}!<br />
               Continue your learning journey.
-            </Typography>
+            </h1>
 
-            <Typography
-              variant="body1"
-              sx={{ color: "rgba(255,255,255,0.75)", mb: 3.5, maxWidth: 480 }}
-            >
+            <p className="text-sm sm:text-base text-blue-100/80 mb-8 max-w-lg leading-relaxed">
               Explore thousands of courses taught by industry experts and level up your skills today.
-            </Typography>
+            </p>
 
-            <Stack direction="row" spacing={2} flexWrap="wrap">
-              <Button
-                variant="contained"
-                size="large"
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
                 onClick={() => router.push("/user/courses")}
-                endIcon={<ArrowForwardRounded />}
-                sx={{
-                  bgcolor: "#ffffff",
-                  color: "#1e3a8a",
-                  fontWeight: 700,
-                  borderRadius: 2.5,
-                  textTransform: "none",
-                  fontSize: "0.95rem",
-                  px: 3,
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-                  "&:hover": {
-                    bgcolor: "#f1f5ff",
-                    transform: "translateY(-1px)",
-                    boxShadow: "0 8px 28px rgba(0,0,0,0.18)",
-                  },
-                  transition: "all 0.2s ease",
-                }}
+                className="flex items-center gap-2 px-6 py-3.5 bg-white hover:bg-blue-50 text-blue-900 font-bold rounded-2xl text-sm shadow-lg shadow-black/10 hover:-translate-y-0.5 transition-all"
               >
-                Browse Courses
-              </Button>
+                <span>Browse Courses</span>
+                <ArrowRightIcon className="w-4 h-4" />
+              </button>
 
               {myCourses.length > 0 && (
-                <Button
-                  variant="outlined"
-                  size="large"
+                <button
+                  type="button"
                   onClick={() => router.push("/user/mycourses")}
-                  startIcon={<PlayCircleRounded />}
-                  sx={{
-                    borderColor: "rgba(255,255,255,0.5)",
-                    color: "#ffffff",
-                    fontWeight: 600,
-                    borderRadius: 2.5,
-                    textTransform: "none",
-                    fontSize: "0.95rem",
-                    px: 3,
-                    "&:hover": {
-                      borderColor: "#ffffff",
-                      bgcolor: "rgba(255,255,255,0.1)",
-                    },
-                  }}
+                  className="flex items-center gap-2 px-6 py-3.5 border border-white/40 hover:border-white hover:bg-white/10 text-white font-semibold rounded-2xl text-sm transition-all"
                 >
-                  My Learning
-                </Button>
+                  <PlayCircleIcon className="w-4 h-4" />
+                  <span>My Learning</span>
+                </button>
               )}
-            </Stack>
+            </div>
+          </div>
 
-            {/* Decorative floating shapes */}
-            <Box
-              sx={{
-                position: "absolute",
-                right: { xs: -40, md: 60 },
-                top: { xs: 20, md: 0 },
-                width: { xs: 160, md: 260 },
-                height: { xs: 160, md: 260 },
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.06)",
-                display: { xs: "none", sm: "block" },
-              }}
-            />
-            <Box
-              sx={{
-                position: "absolute",
-                right: { xs: -20, md: 120 },
-                top: { xs: 60, md: 60 },
-                width: { xs: 80, md: 140 },
-                height: { xs: 80, md: 140 },
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.04)",
-                display: { xs: "none", sm: "block" },
-              }}
-            />
-          </Container>
-        </Box>
+          {/* Decorative ambient blobs */}
+          <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl pointer-events-none"></div>
+          <div className="absolute right-40 bottom-0 w-60 h-60 rounded-full bg-blue-400/10 blur-2xl pointer-events-none"></div>
+        </div>
 
         {/* ── Categories ─────────────────────────────────────────────────── */}
-        <Container maxWidth="lg" sx={{ mt: 5 }}>
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: 700, color: "text.primary", mb: 2.5, letterSpacing: "-0.02em" }}
-          >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+          <h2 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">
             Categories
-          </Typography>
+          </h2>
 
-          <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
+          <div className="flex flex-wrap gap-2.5">
             {CATEGORIES.map(({ label, icon, color }) => (
-              <Chip
+              <button
                 key={label}
-                icon={
-                  <Box sx={{ color: `${color} !important`, display: "flex", alignItems: "center" }}>
-                    {icon}
-                  </Box>
-                }
-                label={label}
+                type="button"
                 onClick={() => router.push("/user/courses")}
-                sx={{
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
-                  borderRadius: 2,
-                  px: 0.5,
-                  py: 2.5,
-                  bgcolor: `${color}12`,
-                  color: color,
-                  border: `1.5px solid ${color}30`,
-                  cursor: "pointer",
-                  transition: "all 0.18s ease",
-                  "&:hover": {
-                    bgcolor: `${color}22`,
-                    transform: "translateY(-2px)",
-                    boxShadow: `0 4px 12px ${color}30`,
-                  },
-                  "& .MuiChip-icon": { color: `${color} !important` },
-                }}
-              />
+                className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl font-semibold text-xs transition-all hover:-translate-y-0.5 shadow-sm ${color}`}
+              >
+                {icon}
+                <span>{label}</span>
+              </button>
             ))}
-          </Stack>
-        </Container>
+          </div>
+        </div>
 
         {/* ── Featured Courses ────────────────────────────────────────────── */}
-        <Container maxWidth="lg" sx={{ mt: 6 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2.5 }}>
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: 700, color: "text.primary", letterSpacing: "-0.02em" }}
-            >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
               Featured Courses
-            </Typography>
-            <Button
-              variant="text"
-              endIcon={<ArrowForwardRounded fontSize="small" />}
+            </h2>
+            <button
+              type="button"
               onClick={() => router.push("/user/courses")}
-              sx={{
-                textTransform: "none",
-                fontWeight: 600,
-                color: "primary.main",
-                fontSize: "0.85rem",
-              }}
+              className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700"
             >
-              View all
-            </Button>
-          </Stack>
+              <span>View all</span>
+              <ArrowRightIcon className="w-4 h-4" />
+            </button>
+          </div>
 
           {featuredCourses.length === 0 ? (
             /* Empty state */
-            <Box
-              sx={{
-                bgcolor: "background.paper",
-                border: "1px dashed",
-                borderColor: "divider",
-                borderRadius: 3,
-                py: 7,
-                textAlign: "center",
-              }}
-            >
-              <SchoolRounded sx={{ fontSize: 48, color: "text.disabled", mb: 1.5 }} />
-              <Typography variant="body1" color="text.secondary" fontWeight={500}>
+            <div className="bg-white border border-dashed border-slate-200 rounded-3xl py-12 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                <SchoolIcon className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-slate-500">
                 No courses available yet. Check back soon!
-              </Typography>
-            </Box>
+              </p>
+            </div>
           ) : (
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2.5,
-                overflowX: "auto",
-                pb: 1,
-                /* Hide scrollbar but keep scroll functionality */
-                scrollbarWidth: "none",
-                "&::-webkit-scrollbar": { display: "none" },
-              }}
-            >
+            <div className="flex gap-5 overflow-x-auto pb-3 scrollbar-none">
               {featuredCourses.slice(0, 6).map((course) => (
                 <FeaturedCard key={course._id} course={course} onClick={goToCourse} />
               ))}
-            </Box>
+            </div>
           )}
-        </Container>
+        </div>
 
         {/* ── Continue Learning ───────────────────────────────────────────── */}
         {myCourses.length > 0 && (
-          <Container maxWidth="lg" sx={{ mt: 6 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2.5 }}>
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <TrendingUpRounded sx={{ color: "primary.main" }} />
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: 700, color: "text.primary", letterSpacing: "-0.02em" }}
-                >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <TrendingUpIcon className="w-5 h-5 text-blue-600" />
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                   Continue Learning
-                </Typography>
-              </Stack>
+                </h2>
+              </div>
               {myCourses.length > 3 && (
-                <Button
-                  variant="text"
-                  endIcon={<ArrowForwardRounded fontSize="small" />}
+                <button
+                  type="button"
                   onClick={() => router.push("/user/mycourses")}
-                  sx={{ textTransform: "none", fontWeight: 600, color: "primary.main", fontSize: "0.85rem" }}
+                  className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700"
                 >
-                  View all
-                </Button>
+                  <span>View all</span>
+                  <ArrowRightIcon className="w-4 h-4" />
+                </button>
               )}
-            </Stack>
+            </div>
 
-            <Grid container spacing={2.5}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {myCourses.slice(0, 3).map((course) => (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={course._id}>
-                  <ContinueCard
-                    course={course}
-                    progress={STATIC_PROGRESS}
-                    onClick={goToCourse}
-                  />
-                </Grid>
+                <ContinueCard
+                  key={course._id}
+                  course={course}
+                  progress={STATIC_PROGRESS}
+                  onClick={goToCourse}
+                />
               ))}
-            </Grid>
-          </Container>
+            </div>
+          </div>
         )}
 
         {/* ── Empty state when no purchased courses ──────────────────────── */}
         {myCourses.length === 0 && (
-          <Container maxWidth="lg" sx={{ mt: 6 }}>
-            <Box
-              sx={{
-                bgcolor: "background.paper",
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 3,
-                p: { xs: 4, md: 5 },
-                textAlign: "center",
-                background: "linear-gradient(135deg, #f0f7ff 0%, #f5f0ff 100%)",
-              }}
-            >
-              <PlayCircleRounded sx={{ fontSize: 52, color: "#2563eb", mb: 1.5, opacity: 0.8 }} />
-              <Typography variant="h6" sx={{ fontWeight: 700, color: "text.primary", mb: 1 }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-100 rounded-3xl p-8 sm:p-12 text-center space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto shadow-md shadow-blue-500/20">
+                <PlayCircleIcon className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900">
                 Start your learning journey
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 380, mx: "auto" }}>
+              </h3>
+              <p className="text-sm text-slate-500 max-w-sm mx-auto">
                 You haven't enrolled in any courses yet. Browse our catalogue and find something you love!
-              </Typography>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => router.push("/user/courses")}
-                endIcon={<ArrowForwardRounded />}
-                sx={{
-                  borderRadius: 2.5,
-                  textTransform: "none",
-                  fontWeight: 700,
-                  px: 3.5,
-                  boxShadow: "none",
-                  "&:hover": { boxShadow: "0 4px 16px rgba(37,99,235,0.25)" },
-                }}
-              >
-                Browse Courses
-              </Button>
-            </Box>
-          </Container>
+              </p>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => router.push("/user/courses")}
+                  className="flex items-center gap-2 mx-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-sm transition-all"
+                >
+                  <span>Browse Courses</span>
+                  <ArrowRightIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
         )}
-      </Box>
+
+      </div>
     </>
   );
 }

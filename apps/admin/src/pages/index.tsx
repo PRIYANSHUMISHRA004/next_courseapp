@@ -1,51 +1,7 @@
 import React from "react";
-import { Box, Typography, Container, Stack, GlobalStyles } from "@mui/material";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { RoleCard } from "ui";
-import AdminPanelSettingsRounded from "@mui/icons-material/AdminPanelSettingsRounded";
-import SchoolRounded from "@mui/icons-material/SchoolRounded";
-
-// Shared style constants for isolated Educational SaaS theme
-const outerContainerStyle = {
-  height: "100dvh",
-  width: "100vw",
-  maxWidth: "100%",
-  maxHeight: "100dvh",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  bgcolor: "grey.900", // Standard grey background for dark-slate tone
-  px: { xs: 2, sm: 4 },
-  py: { xs: 2, sm: 3 },
-  boxSizing: "border-box",
-  overflow: "hidden",
-};
-
-const headerWrapperStyle = {
-  maxWidth: "600px",
-  width: "100%",
-  mb: { xs: 3, sm: 4 },
-  textAlign: "center",
-};
-
-const mainHeadingStyle = {
-  fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.5rem" },
-  fontWeight: 800,
-  color: "#ffffff",
-  letterSpacing: "-0.02em",
-  lineHeight: 1.2,
-  mb: 1.5,
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-};
-
-const subtitleStyle = {
-  color: "grey.400",
-  lineHeight: 1.5,
-  fontWeight: 400,
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-};
+import { RoleCard, AdminShieldIcon, SchoolIcon } from "ui";
 
 export default function Home() {
   const router = useRouter();
@@ -60,42 +16,23 @@ export default function Home() {
         />
       </Head>
 
-      {/* MUI native GlobalStyles to isolate HTML/body margins and layout offsets */}
-      <GlobalStyles
-        styles={{
-          "html, body, #__next": {
-            margin: "0 !important",
-            padding: "0 !important",
-            width: "100vw !important",
-            height: "100dvh !important",
-            overflow: "hidden !important",
-            backgroundColor: "#0f172a !important",
-          },
-        }}
-      />
-
-      <Box sx={outerContainerStyle}>
+      <main className="min-h-screen w-full bg-slate-900 text-white flex flex-col justify-center items-center px-4 py-8 sm:py-12 box-border">
         {/* Header Section */}
-        <Container maxWidth="sm" sx={headerWrapperStyle}>
-          <Typography variant="h4" sx={mainHeadingStyle}>
+        <div className="max-w-xl w-full mb-8 sm:mb-12 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-3 font-sans">
             One Platform. Two Experiences.
-          </Typography>
-          <Typography variant="body1" sx={subtitleStyle}>
+          </h1>
+          <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
             Choose whether you want to manage your courses as an administrator or start learning as a student.
-          </Typography>
-        </Container>
+          </p>
+        </div>
 
         {/* Cards Wrapper */}
-        <Container maxWidth="md">
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={3}
-            justifyContent="center"
-            alignItems="stretch"
-          >
+        <div className="w-full max-w-4xl px-2">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-stretch">
             {/* Administrator Card */}
             <RoleCard
-              icon={<AdminPanelSettingsRounded sx={{ fontSize: "1.8rem" }} />}
+              icon={<AdminShieldIcon className="w-7 h-7" />}
               title="Administrator Portal"
               description="Create, publish and manage your courses."
               features={["Create Courses", "Update Courses", "View Analytics"]}
@@ -106,7 +43,7 @@ export default function Home() {
 
             {/* Student Card */}
             <RoleCard
-              icon={<SchoolRounded sx={{ fontSize: "1.8rem" }} />}
+              icon={<SchoolIcon className="w-7 h-7" />}
               title="Student Portal"
               description="Browse, purchase and learn from premium courses."
               features={["Browse Courses", "Purchase Courses", "Track Learning"]}
@@ -114,9 +51,9 @@ export default function Home() {
               onClick={() => router.push("/user/home")}
               accentColor="#0284c7"
             />
-          </Stack>
-        </Container>
-      </Box>
+          </div>
+        </div>
+      </main>
     </>
   );
 }

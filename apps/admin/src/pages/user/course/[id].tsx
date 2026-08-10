@@ -1,54 +1,47 @@
-import { Box, Button, Card, Chip, Divider, List, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } from "@mui/material";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { CourseFormat, LessonFormat, userState, purchasedCoursesState } from "store";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import Cookies from "js-cookie";
-
-// Icons
-import CheckCircleRounded from "@mui/icons-material/CheckCircleRounded";
-import RadioButtonUncheckedRounded from "@mui/icons-material/RadioButtonUncheckedRounded";
-import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
-import MenuBookRounded from "@mui/icons-material/MenuBookRounded";
+import Head from "next/head";
+import {
+  CheckCircleIcon,
+  CircleUncheckedIcon,
+  ArrowLeftIcon,
+  MenuBookIcon,
+} from "ui";
 
 // ─── Simple Markdown renderer ─────────────────────────────────────────────────
-// Converts a small subset of Markdown to HTML without any extra dependency.
-// Handles: # headings, **bold**, *italic*, `code`, - bullet lists, line breaks.
 function renderMarkdown(md: string): string {
   return md
     // headings
-    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+    .replace(/^### (.+)$/gm, "<h3 class='text-lg font-bold text-slate-900 mt-4 mb-2'>$1</h3>")
+    .replace(/^## (.+)$/gm, "<h2 class='text-xl font-bold text-slate-900 mt-6 mb-3'>$1</h2>")
+    .replace(/^# (.+)$/gm, "<h1 class='text-2xl font-extrabold text-slate-900 mt-6 mb-4'>$1</h1>")
     // bold
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong class='font-bold text-slate-900'>$1</strong>")
     // italic
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/\*(.+?)\*/g, "<em class='italic'>$1</em>")
     // inline code
-    .replace(/`(.+?)`/g, "<code style='background:#f3f4f6;padding:2px 6px;border-radius:4px;font-family:monospace'>$1</code>")
+    .replace(/`(.+?)`/g, "<code class='bg-slate-100 text-blue-700 px-1.5 py-0.5 rounded font-mono text-sm'>$1</code>")
     // bullet list items
-    .replace(/^[-*] (.+)$/gm, "<li>$1</li>")
+    .replace(/^[-*] (.+)$/gm, "<li class='ml-4 list-disc'>$1</li>")
     // wrap consecutive <li> items in <ul>
-    .replace(/((<li>.*<\/li>\n?)+)/g, "<ul style='padding-left:1.5rem;margin:8px 0'>$1</ul>")
+    .replace(/((<li.*<\/li>\n?)+)/g, "<ul class='pl-4 my-3 space-y-1'>$1</ul>")
     // double newline → paragraph break
-    .replace(/\n\n/g, "</p><p>")
+    .replace(/\n\n/g, "</p><p class='my-3'>")
     // single newline → <br>
     .replace(/\n/g, "<br/>");
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function UserCoursePage() {
   const router = useRouter();
   const { id } = router.query;
 
   const [course, setCourse] = useState<CourseFormat | null>(null);
-  // Sorted lesson list
   const [lessons, setLessons] = useState<LessonFormat[]>([]);
-  // The lesson currently being read (null = overview)
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
-  // Set of lesson _ids the user has marked completed (UI-only, no backend yet)
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
 
   // ── Access Control State ────────────────────────────────────────────────────
@@ -95,9 +88,9 @@ export default function UserCoursePage() {
             await axios.post(
               "/api/payment/verify-payment",
               {
-                razorpay_order_id:  response.razorpay_order_id,
+                razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature:  response.razorpay_signature,
+                razorpay_signature: response.razorpay_signature,
                 courseId: id,
               },
               { headers: { Authorization: `Bearer ${token}` } }
@@ -159,12 +152,12 @@ export default function UserCoursePage() {
     fetchCourse();
   }, [id]);
 
-  // ── Mark lesson as completed (UI-only placeholder) ──────────────────────────
+  // ── Mark lesson as completed ────────────────────────────────────────────────
   const markCompleted = (lessonId: string) => {
     setCompletedIds((prev) => {
       const next = new Set(prev);
       if (next.has(lessonId)) {
-        next.delete(lessonId); // toggle off
+        next.delete(lessonId);
       } else {
         next.add(lessonId);
       }
@@ -174,307 +167,320 @@ export default function UserCoursePage() {
 
   // ── Loading guard ───────────────────────────────────────────────────────────
   if (!course || user.isLoading || isPurchasedLoading) {
-    return <div><h2>Loading...</h2></div>;
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <div className="text-slate-500 font-medium">Loading...</div>
+      </div>
+    );
   }
 
   const activeLesson = lessons.find((l) => l._id === activeLessonId) ?? null;
   const completedCount = completedIds.size;
 
-  // ── UI ──────────────────────────────────────────────────────────────────────
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "grey.50" }}>
+    <>
+      <Head>
+        <title>{course.title} | Coursecean</title>
+      </Head>
 
-      {/* ══════════════════════════════════════════
-          SIDEBAR — Lesson list
-      ══════════════════════════════════════════ */}
-      {hasAccess && (
-        <Box
-          sx={{
-            width: { xs: "100%", md: 300 },
-            flexShrink: 0,
-            bgcolor: "background.paper",
-            borderRight: "1px solid",
-            borderColor: "divider",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          {/* Course header */}
-          <Box sx={{ p: 2.5, borderBottom: "1px solid", borderColor: "divider" }}>
-            <Button
-              startIcon={<ArrowBackRounded />}
-              size="small"
-              onClick={() => router.push("/user/courses")}
-              sx={{ textTransform: "none", color: "text.secondary", mb: 1.5, pl: 0 }}
-            >
-              All Courses
-            </Button>
+      <div className="flex flex-col md:flex-row min-h-screen bg-slate-50">
 
-            <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.3 }}>
-              {course.title}
-            </Typography>
+        {/* ══════════════════════════════════════════
+            SIDEBAR — Lesson list
+        ══════════════════════════════════════════ */}
+        {hasAccess && (
+          <aside className="w-full md:w-80 shrink-0 bg-white border-r border-slate-200 flex flex-col">
+            {/* Course header */}
+            <div className="p-5 border-b border-slate-200 space-y-3">
+              <button
+                type="button"
+                onClick={() => router.push("/user/courses")}
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
+              >
+                <ArrowLeftIcon className="w-3.5 h-3.5" />
+                <span>All Courses</span>
+              </button>
 
-            {/* Progress placeholder */}
-            <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1.5 }}>
-              <MenuBookRounded sx={{ fontSize: "1rem", color: "text.secondary" }} />
-              <Typography variant="caption" color="text.secondary">
-                {completedCount} / {lessons.length} lessons completed
-              </Typography>
-            </Stack>
+              <h2 className="text-base font-bold text-slate-900 leading-snug">
+                {course.title}
+              </h2>
 
-            {/* Visual progress bar placeholder */}
-            <Box sx={{ mt: 1, height: 6, bgcolor: "grey.200", borderRadius: 3, overflow: "hidden" }}>
-              <Box
-                sx={{
-                  height: "100%",
-                  width: lessons.length > 0 ? `${(completedCount / lessons.length) * 100}%` : "0%",
-                  bgcolor: "success.main",
-                  borderRadius: 3,
-                  transition: "width 0.3s ease",
-                }}
+              {/* Progress */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                  <MenuBookIcon className="w-4 h-4 text-slate-400" />
+                  <span>
+                    {completedCount} / {lessons.length} lessons completed
+                  </span>
+                </div>
+
+                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                    style={{
+                      width: lessons.length > 0 ? `${(completedCount / lessons.length) * 100}%` : "0%",
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Lesson list */}
+            {lessons.length === 0 ? (
+              <p className="p-6 text-center text-slate-500 text-xs">
+                No lessons available yet.
+              </p>
+            ) : (
+              <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+                {lessons.map((lesson, idx) => {
+                  const done = completedIds.has(lesson._id);
+                  const active = activeLessonId === lesson._id;
+
+                  return (
+                    <button
+                      key={lesson._id}
+                      type="button"
+                      onClick={() => setActiveLessonId(lesson._id)}
+                      className={`w-full text-left flex items-center gap-3 px-4 py-3.5 transition-colors ${
+                        active
+                          ? "bg-blue-50/80 border-l-4 border-blue-600 font-bold text-blue-900"
+                          : "hover:bg-slate-50 text-slate-700"
+                      }`}
+                    >
+                      <div className="shrink-0">
+                        {done ? (
+                          <CheckCircleIcon className="w-4 h-4 text-emerald-600" />
+                        ) : (
+                          <CircleUncheckedIcon className="w-4 h-4 text-slate-300" />
+                        )}
+                      </div>
+                      <span className="text-xs leading-snug flex-1 truncate">
+                        {idx + 1}. {lesson.title}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </aside>
+        )}
+
+        {/* ══════════════════════════════════════════
+            MAIN AREA — Overview or Lesson content
+        ══════════════════════════════════════════ */}
+        <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
+
+          {/* ── Course overview ── */}
+          {(!activeLesson || !hasAccess) && (
+            <div className="max-w-3xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+              <img
+                src={course.imageLink}
+                alt={course.title}
+                className="w-full h-64 object-cover rounded-2xl mb-6 shadow-sm"
               />
-            </Box>
-          </Box>
 
-          {/* Lesson list */}
-          {lessons.length === 0 ? (
-            <Typography color="text.secondary" sx={{ p: 3, textAlign: "center" }} variant="body2">
-              No lessons available yet.
-            </Typography>
-          ) : (
-            <List disablePadding sx={{ flexGrow: 1, overflowY: "auto" }}>
-              {lessons.map((lesson, idx) => {
-                const done = completedIds.has(lesson._id);
-                const active = activeLessonId === lesson._id;
+              <div className="flex flex-wrap gap-2 mb-4">
+                {course.level && (
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-blue-200 text-blue-700 bg-blue-50">
+                    {course.level}
+                  </span>
+                )}
+                {course.category && (
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-slate-200 text-slate-700 bg-slate-50">
+                    {course.category}
+                  </span>
+                )}
+                {course.language && (
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-slate-200 text-slate-700 bg-slate-50">
+                    {course.language}
+                  </span>
+                )}
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-slate-200 text-slate-700 bg-slate-50">
+                  {lessons.length} Lessons
+                </span>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2 tracking-tight">
+                {course.title}
+              </h1>
+
+              <p className="text-xl font-bold text-slate-700 mb-4">
+                ₹{course.price}
+              </p>
+
+              <hr className="border-slate-200 my-4" />
+
+              <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+                {course.description}
+              </p>
+
+              {hasAccess && lessons.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveLessonId(lessons[0]._id)}
+                  className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-sm shadow-sm transition-all"
+                >
+                  Start Learning →
+                </button>
+              )}
+
+              {!isLoggedIn && (
+                <div className="mt-6 p-6 bg-blue-50/70 border border-blue-200 rounded-2xl text-center space-y-3">
+                  <p className="text-sm font-semibold text-slate-800">
+                    Login to purchase this course and access all lessons.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/user/login")}
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-colors shadow-sm"
+                  >
+                    Login
+                  </button>
+                </div>
+              )}
+
+              {isLoggedIn && !isPurchased && (
+                <div className="mt-6 p-6 bg-emerald-50/70 border border-emerald-200 rounded-2xl text-center space-y-3">
+                  <p className="text-sm font-semibold text-slate-800">
+                    Purchase this course to unlock all lessons.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={buyCourse}
+                    className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-colors shadow-sm"
+                  >
+                    Buy Course
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Lesson document ── */}
+          {hasAccess && activeLesson && (
+            <div className="max-w-3xl mx-auto space-y-4">
+
+              {/* Navigation: prev / next */}
+              {(() => {
+                const idx = lessons.findIndex((l) => l._id === activeLesson._id);
+                const prev = idx > 0 ? lessons[idx - 1] : null;
+                const next = idx < lessons.length - 1 ? lessons[idx + 1] : null;
 
                 return (
-                  <ListItemButton
-                    key={lesson._id}
-                    selected={active}
-                    onClick={() => setActiveLessonId(lesson._id)}
-                    sx={{
-                      borderBottom: "1px solid",
-                      borderColor: "divider",
-                      px: 2,
-                      py: 1.5,
-                      "&.Mui-selected": {
-                        bgcolor: "primary.50",
-                        borderLeft: "3px solid",
-                        borderLeftColor: "primary.main",
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 36 }}>
-                      {done ? (
-                        <CheckCircleRounded sx={{ color: "success.main", fontSize: "1.2rem" }} />
-                      ) : (
-                        <RadioButtonUncheckedRounded sx={{ color: "text.disabled", fontSize: "1.2rem" }} />
-                      )}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
-                        <Typography variant="body2" fontWeight={active ? 700 : 500}>
-                          {idx + 1}. {lesson.title}
-                        </Typography>
-                      }
-                    />
-                  </ListItemButton>
+                  <div className="flex justify-between items-center text-xs font-semibold">
+                    <button
+                      type="button"
+                      disabled={!prev}
+                      onClick={() => prev && setActiveLessonId(prev._id)}
+                      className="px-3 py-1.5 border border-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-transparent rounded-lg text-slate-700 transition-colors"
+                    >
+                      ← Previous
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveLessonId(null)}
+                      className="px-3 py-1.5 text-slate-600 hover:text-slate-900 transition-colors"
+                    >
+                      Course Overview
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!next}
+                      onClick={() => next && setActiveLessonId(next._id)}
+                      className="px-3 py-1.5 border border-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-transparent rounded-lg text-slate-700 transition-colors"
+                    >
+                      Next →
+                    </button>
+                  </div>
                 );
-              })}
-            </List>
-          )}
-        </Box>
-      )}
-
-      {/* ══════════════════════════════════════════
-          MAIN AREA — Overview or Lesson content
-      ══════════════════════════════════════════ */}
-      <Box sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, overflowY: "auto" }}>
-
-        {/* ── Course overview (no lesson selected, OR when hasAccess is false) ── */}
-        {(!activeLesson || !hasAccess) && (
-          <Card sx={{ maxWidth: 780, mx: "auto", p: 3 }}>
-            <img
-              src={course.imageLink}
-              alt={course.title}
-              style={{ width: "100%", height: 260, objectFit: "cover", borderRadius: 10, marginBottom: 20 }}
-            />
-
-            <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap">
-              {course.level && <Chip label={course.level} size="small" color="primary" variant="outlined" />}
-              {course.category && <Chip label={course.category} size="small" variant="outlined" />}
-              {course.language && <Chip label={course.language} size="small" variant="outlined" />}
-              <Chip label={`${lessons.length} Lessons`} size="small" variant="outlined" />
-            </Stack>
-
-            <Typography variant="h4" fontWeight={700} gutterBottom>
-              {course.title}
-            </Typography>
-
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              ₹{course.price}
-            </Typography>
-
-            <Divider sx={{ my: 2 }} />
-
-            <Typography>{course.description}</Typography>
-
-            {hasAccess && lessons.length > 0 && (
-              <Button
-                variant="contained"
-                sx={{ mt: 3, textTransform: "none", fontWeight: 600, borderRadius: 2.5 }}
-                onClick={() => setActiveLessonId(lessons[0]._id)}
-              >
-                Start Learning →
-              </Button>
-            )}
-
-            {!isLoggedIn && (
-              <Card variant="outlined" sx={{ p: 3, mt: 3, textAlign: "center", bgcolor: "primary.50", borderColor: "primary.main" }}>
-                <Typography variant="body1" sx={{ fontWeight: 600, mb: 2 }}>
-                  Login to purchase this course and access all lessons.
-                </Typography>
-                <Button variant="contained" onClick={() => router.push("/user/login")} sx={{ textTransform: "none", borderRadius: 2 }}>
-                  Login
-                </Button>
-              </Card>
-            )}
-
-            {isLoggedIn && !isPurchased && (
-              <Card variant="outlined" sx={{ p: 3, mt: 3, textAlign: "center", bgcolor: "success.50", borderColor: "success.main" }}>
-                <Typography variant="body1" sx={{ fontWeight: 600, mb: 2 }}>
-                  Purchase this course to unlock all lessons.
-                </Typography>
-                <Button variant="contained" color="success" onClick={buyCourse} sx={{ textTransform: "none", borderRadius: 2 }}>
-                  Buy Course
-                </Button>
-              </Card>
-            )}
-          </Card>
-        )}
-
-        {/* ── Lesson document ── */}
-        {hasAccess && activeLesson && (
-          <Box sx={{ maxWidth: 780, mx: "auto" }}>
-
-            {/* Navigation: prev / next */}
-            {(() => {
-              const idx = lessons.findIndex((l) => l._id === activeLesson._id);
-              const prev = idx > 0 ? lessons[idx - 1] : null;
-              const next = idx < lessons.length - 1 ? lessons[idx + 1] : null;
-
-              return (
-                <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
-                  <Button
-                    disabled={!prev}
-                    onClick={() => prev && setActiveLessonId(prev._id)}
-                    sx={{ textTransform: "none" }}
-                  >
-                    ← Previous
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => setActiveLessonId(null)}
-                    sx={{ textTransform: "none" }}
-                  >
-                    Course Overview
-                  </Button>
-                  <Button
-                    disabled={!next}
-                    onClick={() => next && setActiveLessonId(next._id)}
-                    sx={{ textTransform: "none" }}
-                  >
-                    Next →
-                  </Button>
-                </Stack>
-              );
-            })()}
-
-            <Card sx={{ p: { xs: 2.5, md: 4 } }}>
-              {/* Lesson header */}
-              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 3 }}>
-                {completedIds.has(activeLesson._id) ? (
-                  <CheckCircleRounded sx={{ color: "success.main", fontSize: "1.6rem" }} />
-                ) : (
-                  <RadioButtonUncheckedRounded sx={{ color: "text.disabled", fontSize: "1.6rem" }} />
-                )}
-                <Box>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                    LESSON {lessons.findIndex((l) => l._id === activeLesson._id) + 1} OF {lessons.length}
-                  </Typography>
-                  <Typography variant="h5" fontWeight={700}>
-                    {activeLesson.title}
-                  </Typography>
-                </Box>
-              </Stack>
-
-              <Divider sx={{ mb: 3 }} />
-
-              {/* Lesson description — short summary */}
-              {activeLesson.description && (
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  sx={{ mb: 3, lineHeight: 1.7, fontStyle: "italic", borderLeft: "3px solid", borderLeftColor: "primary.light", pl: 2 }}
-                >
-                  {activeLesson.description}
-                </Typography>
-              )}
-
-              {/* Lesson content — rendered Markdown */}
-              {activeLesson.content ? (
-                <Box
-                  sx={{
-                    lineHeight: 1.8,
-                    fontSize: "1rem",
-                    color: "text.primary",
-                    "& h1,h2,h3": { mt: 2, mb: 1, fontWeight: 700 },
-                    "& ul": { pl: 2.5 },
-                    "& code": { fontFamily: "monospace" },
-                  }}
-                  dangerouslySetInnerHTML={{ __html: `<p>${renderMarkdown(activeLesson.content)}</p>` }}
-                />
-              ) : (
-                <Typography color="text.secondary" fontStyle="italic">
-                  This lesson has no content yet.
-                </Typography>
-              )}
-
-              <Divider sx={{ mt: 4, mb: 2 }} />
-
-              {/* Mark as Completed button */}
-              <Button
-                variant={completedIds.has(activeLesson._id) ? "outlined" : "contained"}
-                color="success"
-                sx={{ textTransform: "none", fontWeight: 600, borderRadius: 2.5, px: 4 }}
-                startIcon={
-                  completedIds.has(activeLesson._id)
-                    ? <CheckCircleRounded />
-                    : <RadioButtonUncheckedRounded />
-                }
-                onClick={() => markCompleted(activeLesson._id)}
-              >
-                {completedIds.has(activeLesson._id) ? "Completed ✓" : "Mark as Completed"}
-              </Button>
-
-              {/* Auto-advance to next lesson after marking complete */}
-              {completedIds.has(activeLesson._id) && (() => {
-                const idx = lessons.findIndex((l) => l._id === activeLesson._id);
-                const next = lessons[idx + 1];
-                return next ? (
-                  <Button
-                    variant="contained"
-                    sx={{ ml: 2, textTransform: "none", fontWeight: 600, borderRadius: 2.5 }}
-                    onClick={() => setActiveLessonId(next._id)}
-                  >
-                    Next Lesson →
-                  </Button>
-                ) : null;
               })()}
-            </Card>
-          </Box>
-        )}
-      </Box>
-    </Box>
+
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm">
+                {/* Lesson header */}
+                <div className="flex items-center gap-3.5 mb-6">
+                  {completedIds.has(activeLesson._id) ? (
+                    <CheckCircleIcon className="w-7 h-7 text-emerald-600 shrink-0" />
+                  ) : (
+                    <CircleUncheckedIcon className="w-7 h-7 text-slate-300 shrink-0" />
+                  )}
+                  <div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                      LESSON {lessons.findIndex((l) => l._id === activeLesson._id) + 1} OF {lessons.length}
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                      {activeLesson.title}
+                    </h2>
+                  </div>
+                </div>
+
+                <hr className="border-slate-200 mb-6" />
+
+                {/* Lesson description */}
+                {activeLesson.description && (
+                  <div className="mb-6 p-4 bg-slate-50 border-l-4 border-blue-500 rounded-r-xl text-slate-600 text-sm italic leading-relaxed">
+                    {activeLesson.description}
+                  </div>
+                )}
+
+                {/* Lesson content — rendered Markdown */}
+                {activeLesson.content ? (
+                  <div
+                    className="text-slate-800 text-sm sm:text-base leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: `<p>${renderMarkdown(activeLesson.content)}</p>` }}
+                  />
+                ) : (
+                  <p className="text-slate-400 text-sm italic">
+                    This lesson has no content yet.
+                  </p>
+                )}
+
+                <hr className="border-slate-200 my-8" />
+
+                {/* Mark as Completed button */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => markCompleted(activeLesson._id)}
+                    className={`flex items-center gap-2 px-6 py-2.5 font-bold rounded-xl text-sm transition-all ${
+                      completedIds.has(activeLesson._id)
+                        ? "border border-emerald-600 text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                        : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                    }`}
+                  >
+                    {completedIds.has(activeLesson._id) ? (
+                      <>
+                        <CheckCircleIcon className="w-4 h-4" />
+                        <span>Completed ✓</span>
+                      </>
+                    ) : (
+                      <>
+                        <CircleUncheckedIcon className="w-4 h-4" />
+                        <span>Mark as Completed</span>
+                      </>
+                    )}
+                  </button>
+
+                  {completedIds.has(activeLesson._id) && (() => {
+                    const idx = lessons.findIndex((l) => l._id === activeLesson._id);
+                    const next = lessons[idx + 1];
+                    return next ? (
+                      <button
+                        type="button"
+                        onClick={() => setActiveLessonId(next._id)}
+                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-sm transition-all"
+                      >
+                        Next Lesson →
+                      </button>
+                    ) : null;
+                  })()}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+        </main>
+      </div>
+    </>
   );
 }

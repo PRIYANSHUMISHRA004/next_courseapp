@@ -1,21 +1,11 @@
 import { useRouter } from "next/router";
 import { useRecoilValue } from "recoil";
 import { purchasedCoursesState } from "store";
-import {
-  Box,
-  Button,
-  Chip,
-  LinearProgress,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
-import SchoolRounded from "@mui/icons-material/SchoolRounded";
-import PlayCircleOutlineRounded from "@mui/icons-material/PlayCircleOutlineRounded";
+import { SchoolIcon, PlayCircleOutlineIcon } from "ui";
 import { CourseFormat } from "store";
+import Head from "next/head";
 
-
-// ── Inline placeholder SVG (no external dependency) ────────────────────────
+// ── Inline placeholder SVG ──────────────────────────────────────────────────
 const PLACEHOLDER_SRC =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='160' viewBox='0 0 280 160'%3E%3Crect width='280' height='160' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%2394a3b8'%3ENo Image%3C/text%3E%3C/svg%3E";
 
@@ -28,152 +18,80 @@ function LearningCard({
   onClick: (id: string) => void;
 }) {
   return (
-    <Paper
-      elevation={2}
-      sx={{
-        display: "flex",
-        flexDirection: { xs: "column", sm: "row" },
-        overflow: "hidden",
-        borderRadius: 3,
-        width: "100%",
-        maxWidth: 860,
-        transition: "box-shadow 0.25s ease, transform 0.2s ease",
-        "&:hover": {
-          boxShadow: 8,
-          transform: "translateY(-2px)",
-        },
-      }}
-    >
+    <div className="flex flex-col sm:flex-row overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all w-full max-w-4xl">
       {/* ── Thumbnail ── */}
-      <Box
-        sx={{
-          width: { xs: "100%", sm: 240 },
-          flexShrink: 0,
-          position: "relative",
-        }}
-      >
+      <div className="w-full sm:w-60 shrink-0 relative">
         <img
           src={course.imageLink || PLACEHOLDER_SRC}
           alt={course.title}
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_SRC;
           }}
-          style={{
-            width: "100%",
-            height: "100%",
-            minHeight: 160,
-            objectFit: "cover",
-            display: "block",
-          }}
+          className="w-full h-full min-h-[160px] object-cover block"
         />
         {/* Purchased badge overlay */}
-        <Chip
-          label="Purchased"
-          size="small"
-          sx={{
-            position: "absolute",
-            top: 10,
-            left: 10,
-            bgcolor: "success.main",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: "0.68rem",
-            height: 22,
-          }}
-        />
-      </Box>
+        <span className="absolute top-2.5 left-2.5 bg-emerald-600 text-white font-bold text-[11px] px-2.5 py-0.5 rounded-full shadow-sm">
+          Purchased
+        </span>
+      </div>
 
       {/* ── Course info ── */}
-      <Box
-        sx={{
-          flex: 1,
-          p: { xs: 2.5, sm: 3 },
-          display: "flex",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        {/* Meta chips */}
-        <Stack direction="row" spacing={1} flexWrap="wrap">
-          {course.category && (
-            <Chip
-              label={course.category}
-              size="small"
-              variant="outlined"
-              sx={{ fontWeight: 600, fontSize: "0.7rem" }}
-            />
-          )}
-          {course.level && (
-            <Chip
-              label={course.level}
-              size="small"
-              variant="outlined"
-              color="primary"
-              sx={{ fontWeight: 600, fontSize: "0.7rem" }}
-            />
-          )}
-          {course.totalLessons != null && course.totalLessons > 0 && (
-            <Chip
-              icon={<SchoolRounded sx={{ fontSize: "0.85rem !important" }} />}
-              label={`${course.totalLessons} lessons`}
-              size="small"
-              variant="outlined"
-              sx={{ fontWeight: 600, fontSize: "0.7rem" }}
-            />
-          )}
-        </Stack>
+      <div className="flex-1 p-5 sm:p-6 flex flex-col justify-between gap-3">
+        <div>
+          {/* Meta chips */}
+          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            {course.category && (
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-slate-200 text-slate-700 bg-slate-50">
+                {course.category}
+              </span>
+            )}
+            {course.level && (
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-blue-200 text-blue-700 bg-blue-50">
+                {course.level}
+              </span>
+            )}
+            {course.totalLessons != null && course.totalLessons > 0 && (
+              <span className="flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-slate-200 text-slate-700 bg-slate-50">
+                <SchoolIcon className="w-3.5 h-3.5" />
+                <span>{course.totalLessons} lessons</span>
+              </span>
+            )}
+          </div>
 
-        {/* Title */}
-        <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.3 }}>
-          {course.title}
-        </Typography>
+          {/* Title */}
+          <h3 className="text-lg font-bold text-slate-900 leading-snug">
+            {course.title}
+          </h3>
+        </div>
 
-        {/* Progress (placeholder — 0 % until backend tracks it) */}
-        <Box>
-          <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
-            <Typography variant="caption" color="text.secondary">
-              Progress
-            </Typography>
-            <Typography variant="caption" color="text.secondary" fontWeight={600}>
-              0%
-            </Typography>
-          </Stack>
-          <LinearProgress
-            variant="determinate"
-            value={0}
-            sx={{
-              height: 6,
-              borderRadius: 3,
-              bgcolor: "grey.200",
-              "& .MuiLinearProgress-bar": { borderRadius: 3 },
-            }}
-          />
-        </Box>
+        {/* Progress */}
+        <div>
+          <div className="flex justify-between text-xs text-slate-500 mb-1">
+            <span>Progress</span>
+            <span className="font-semibold text-slate-700">0%</span>
+          </div>
+          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-full bg-blue-600 rounded-full w-0 transition-all"></div>
+          </div>
+        </div>
 
-        {/* Continue Learning button — pushed to bottom */}
-        <Box sx={{ mt: "auto", pt: 1.5 }}>
-          <Button
-            variant="contained"
-            startIcon={<PlayCircleOutlineRounded />}
+        {/* Continue Learning button */}
+        <div className="pt-1">
+          <button
+            type="button"
             onClick={() => onClick(course._id)}
-            sx={{
-              textTransform: "none",
-              fontWeight: 600,
-              borderRadius: 2.5,
-              px: 3,
-            }}
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-xl text-sm shadow-sm transition-all active:scale-[0.99]"
           >
-            Continue Learning
-          </Button>
-        </Box>
-      </Box>
-    </Paper>
+            <PlayCircleOutlineIcon className="w-4 h-4" />
+            <span>Continue Learning</span>
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
 export default function MyLearningPage() {
-  // Read from centralized Recoil state — populated once by InitPurchasedCourses in _app.tsx
   const { courses } = useRecoilValue(purchasedCoursesState);
   const router = useRouter();
 
@@ -181,62 +99,57 @@ export default function MyLearningPage() {
     router.push(`/user/course/${courseid}`);
   }
 
-  // ── Empty state ─────────────────────────────────────────────────────────
-  if (courses.length === 0) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "60vh",
-          gap: 2,
-          px: 2,
-        }}
-      >
-        <SchoolRounded sx={{ fontSize: 64, color: "text.disabled" }} />
-        <Typography variant="h6" color="text.secondary" textAlign="center">
-          Radhe Radhe, You haven't purchased any courses yet.
-        </Typography>
-        <Button
-          variant="outlined"
-          onClick={() => router.push("/user/courses")}
-          sx={{ textTransform: "none", borderRadius: 2.5 }}
-        >
-          Browse Courses
-        </Button>
-      </Box>
-    );
-  }
-
-  // ── Filled state ────────────────────────────────────────────────────────
   return (
-    <Box
-      sx={{
-        maxWidth: 900,
-        mx: "auto",
-        px: { xs: 2, md: 3 },
-        py: { xs: 3, md: 4 },
-      }}
-    >
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>
-        My Learning
-        <Typography
-          component="span"
-          variant="body2"
-          color="text.secondary"
-          sx={{ ml: 1.5 }}
-        >
-          ({courses.length} {courses.length === 1 ? "course" : "courses"})
-        </Typography>
-      </Typography>
+    <>
+      <Head>
+        <title>My Learning | Coursecean</title>
+      </Head>
 
-      <Stack spacing={2.5}>
-        {courses.map((course, i) => (
-          <LearningCard key={course._id ?? i} course={course} onClick={onClick} />
-        ))}
-      </Stack>
-    </Box>
+      <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
+          
+          {courses.length === 0 ? (
+            /* Empty state */
+            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8 bg-white border border-slate-200 rounded-3xl space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+                <SchoolIcon className="w-10 h-10" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-800">
+                Radhe Radhe, You haven't purchased any courses yet.
+              </h2>
+              <p className="text-sm text-slate-500 max-w-sm">
+                Explore our rich library of courses and enroll to start your learning journey.
+              </p>
+              <button
+                type="button"
+                onClick={() => router.push("/user/courses")}
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-sm transition-all"
+              >
+                Browse Courses
+              </button>
+            </div>
+          ) : (
+            /* Populated state */
+            <div>
+              <div className="flex items-baseline gap-2 mb-6">
+                <h1 className="text-2xl font-bold text-slate-900">
+                  My Learning
+                </h1>
+                <span className="text-sm text-slate-500 font-medium">
+                  ({courses.length} {courses.length === 1 ? "course" : "courses"})
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                {courses.map((course, i) => (
+                  <LearningCard key={course._id ?? i} course={course} onClick={onClick} />
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </>
   );
 }

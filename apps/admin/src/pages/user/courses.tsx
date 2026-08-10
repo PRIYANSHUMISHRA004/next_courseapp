@@ -1,21 +1,9 @@
 import { useMemo } from "react";
-import axios from "axios";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import { useRecoilValue } from "recoil";
 import { userState, coursesState, purchasedCoursesState } from "store";
-import { CourseFormat } from "store";
-import {
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
-  Typography,
-  Button,
-  Chip,
-  Box,
-  Stack,
-} from "@mui/material";
+import Head from "next/head";
 
 // Inline SVG fallback when a course image fails to load
 const PLACEHOLDER_SRC =
@@ -47,110 +35,82 @@ export default function CoursesPage() {
 
   if (courses.length === 0) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
+      <div className="flex justify-center items-center min-h-[60vh] text-slate-500 font-medium">
         Radhe Radhe, No Courses Available
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "20px",
-        padding: "20px",
-      }}
-    >
-      {courses.map((course, i) => {
-        const isPurchased = purchasedIds.has(course._id);
+    <>
+      <Head>
+        <title>Courses | Coursecean</title>
+      </Head>
 
-        return (
-          <Card
-            key={course._id ?? i}
-            style={{
-              margin: 10,
-              width: 300,
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <CardMedia
-              component="img"
-              height={180}
-              image={course.imageLink || PLACEHOLDER_SRC}
-              alt={course.title}
-              sx={{ objectFit: "cover", flexShrink: 0 }}
-              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                e.currentTarget.src = PLACEHOLDER_SRC;
-              }}
-            />
+      <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap justify-center gap-6">
+            {courses.map((course, i) => {
+              const isPurchased = purchasedIds.has(course._id);
 
-            <CardContent sx={{ flexGrow: 1, pb: 0 }}>
-              <Typography variant="h6" textAlign="center" style={{ marginTop: 4 }}>
-                {course.title}
-              </Typography>
-
-              <Stack
-                direction="row"
-                justifyContent="center"
-                alignItems="center"
-                spacing={1.5}
-                style={{ marginTop: 8, padding: "0 12px" }}
-              >
-                <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  ₹{course.price}
-                </Typography>
-
-                {isPurchased && (
-                  <Chip
-                    label="Purchased"
-                    size="small"
-                    color="success"
-                    sx={{ fontWeight: 700, fontSize: "0.7rem" }}
+              return (
+                <div
+                  key={course._id ?? i}
+                  className="w-[300px] bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                >
+                  <img
+                    src={course.imageLink || PLACEHOLDER_SRC}
+                    alt={course.title}
+                    className="w-full h-[180px] object-cover shrink-0"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_SRC;
+                    }}
                   />
-                )}
-              </Stack>
-            </CardContent>
 
-            {/* Push button to bottom so cards align in the same row */}
-            <Box
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: 12,
-                marginTop: "auto",
-              }}
-            >
-              {isPurchased ? (
-                <Button
-                  variant="outlined"
-                  color="success"
-                  onClick={() => router.push(`/user/course/${course._id}`)}
-                >
-                  Continue Learning
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  onClick={() => handleBuy(course._id)}
-                >
-                  Buy Course
-                </Button>
-              )}
-            </Box>
-          </Card>
-        );
-      })}
-    </div>
+                  <div className="p-4 pb-0 flex-1">
+                    <h3 className="text-lg font-bold text-slate-800 text-center line-clamp-2">
+                      {course.title}
+                    </h3>
+
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <span className="text-base font-semibold text-slate-900">
+                        ₹{course.price}
+                      </span>
+
+                      {isPurchased && (
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                          Purchased
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Push button to bottom so cards align in the same row */}
+                  <div className="p-4 mt-auto">
+                    {isPurchased ? (
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/user/course/${course._id}`)}
+                        className="w-full py-2 px-4 border border-emerald-600 hover:bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-xl transition-colors"
+                      >
+                        Continue Learning
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleBuy(course._id)}
+                        className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors"
+                      >
+                        Buy Course
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
