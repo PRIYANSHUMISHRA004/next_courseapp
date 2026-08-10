@@ -4,6 +4,16 @@
   "private": true,
   "main": "./index.tsx",
   "types": "./index.tsx",
+  "exports": {
+    ".": {
+      "types": "./index.tsx",
+      "default": "./index.tsx"
+    },
+    "./button": {
+      "types": "./src/button.tsx",
+      "default": "./src/button.tsx"
+    }
+  },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",

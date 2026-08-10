@@ -304,7 +304,7 @@ export default function AdminCoursePage() {
           {/* ── Category / Level / Language ── */}
           <Grid container spacing={1.5}>
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FieldLabel>Category</FieldLabel>
               <FormControl fullWidth size="small">
                 <InputLabel>Category</InputLabel>
@@ -321,7 +321,7 @@ export default function AdminCoursePage() {
               </FormControl>
             </Grid>
 
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <FieldLabel>Level</FieldLabel>
               <FormControl fullWidth size="small">
                 <InputLabel>Level</InputLabel>
@@ -343,7 +343,7 @@ export default function AdminCoursePage() {
               </FormControl>
             </Grid>
 
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <FieldLabel>Language</FieldLabel>
               <FormControl fullWidth size="small">
                 <InputLabel>Language</InputLabel>

@@ -23,7 +23,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Head from "next/head";
-import { CATEGORIES, LEVELS, LANGUAGES } from "store";
+import { CATEGORIES, LEVELS, LANGUAGES, type CourseFormat } from "store";
 
 // ── Helper ───────────────────────────────────────────────────────────────────
 /** Section label above each field */
@@ -124,8 +124,26 @@ export default function AddCourse() {
     }
   };
 
-  // Preview card — uses the same shape Coursecard expects
-  const previewCourse = [{ ...course, _id: "preview" }];
+  // Preview card uses the same shape Coursecard expects.
+  const previewCourse: CourseFormat[] = [
+    {
+      _id: "preview",
+      title: course.title,
+      description: course.description,
+      price: course.price,
+      imageLink: course.imageLink,
+      published: course.published,
+      category: course.category || undefined,
+      level: course.level || undefined,
+      language: course.language || undefined,
+      duration: course.duration || undefined,
+      thumbnail: course.imageLink || undefined,
+      tags: course.tagsRaw
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    },
+  ];
 
   return (
     <>
@@ -159,7 +177,7 @@ export default function AddCourse() {
             {/* ════════════════════════════════
                 LEFT COLUMN — Form (65%)
             ════════════════════════════════ */}
-            <Grid item xs={12} md={7}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <Paper
                 elevation={0}
                 sx={{
@@ -247,7 +265,7 @@ export default function AddCourse() {
                   <Grid container spacing={2}>
 
                     {/* Category */}
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
                       <FieldLabel>Category</FieldLabel>
                       <FormControl fullWidth>
                         <InputLabel>Category</InputLabel>
@@ -268,7 +286,7 @@ export default function AddCourse() {
                     </Grid>
 
                     {/* Level */}
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
                       <FieldLabel>Level</FieldLabel>
                       <FormControl fullWidth>
                         <InputLabel>Level</InputLabel>
@@ -292,7 +310,7 @@ export default function AddCourse() {
                     </Grid>
 
                     {/* Language */}
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
                       <FieldLabel>Language</FieldLabel>
                       <FormControl fullWidth>
                         <InputLabel>Language</InputLabel>
@@ -445,7 +463,7 @@ export default function AddCourse() {
                 RIGHT COLUMN — Live Preview (35%)
                 Sticky so it stays visible while scrolling the form.
             ════════════════════════════════ */}
-            <Grid item xs={12} md={5}>
+            <Grid size={{ xs: 12, md: 5 }}>
               <Box sx={{ position: "sticky", top: 24 }}>
 
                 <Typography
