@@ -4,6 +4,13 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": [
+        "MONGO_URL",
+        "JWT_SECRET",
+        "ADMIN_SECRET",
+        "USER_SECRET",
+        "RAZORPAY_KEY_ID"
+      ],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
     },
