@@ -64,17 +64,6 @@ function LearningCard({
           </h3>
         </div>
 
-        {/* Progress */}
-        <div>
-          <div className="flex justify-between text-xs text-slate-500 mb-1">
-            <span>Progress</span>
-            <span className="font-semibold text-slate-700">0%</span>
-          </div>
-          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-blue-600 rounded-full w-0 transition-all"></div>
-          </div>
-        </div>
-
         {/* Continue Learning button */}
         <div className="pt-1">
           <button

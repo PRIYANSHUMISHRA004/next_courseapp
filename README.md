@@ -37,11 +37,10 @@ next_courseapp/
 - View all created courses with live card previews and status toggles
 
 ### 👤 User Portal
-- User **signup & login** (JWT + NextAuth)
+- User **signup & login** (JWT-based)
 - Browse all published courses with rich metadata and search filtering
 - **Purchase courses** via Razorpay payment gateway integration
 - Access **purchased courses** with sidebar lesson navigation and Markdown reader
-- Track learning progress across enrolled courses in "My Learning"
 
 ### 📦 Course Model
 Each course supports:
@@ -62,7 +61,7 @@ Each course supports:
 | **Language** | TypeScript |
 | **Styling** | [Tailwind CSS 3](https://tailwindcss.com/) + [PostCSS](https://postcss.org/) + Autoprefixer |
 | **Database** | MongoDB + [Mongoose](https://mongoosejs.com/) |
-| **Auth** | JWT + [NextAuth.js](https://next-auth.js.org/) + `js-cookie` |
+| **Auth** | Custom JWT + `js-cookie` |
 | **State Management** | [Recoil](https://recoiljs.org/) |
 | **Payments** | [Razorpay](https://razorpay.com/) |
 | **UI Components** | Custom `packages/ui` component suite with zero-dependency SVG icons |
@@ -113,12 +112,9 @@ Create a `.env` file in the root and in `apps/admin/`:
 # MongoDB
 MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/courseapp
 
-# JWT
-JWT_SECRET=your_super_secret_key
-
-# NextAuth
-NEXTAUTH_SECRET=your_nextauth_secret
-NEXTAUTH_URL=http://localhost:3000
+# JWT Secrets
+USER_SECRET=your_user_jwt_secret
+ADMIN_SECRET=your_admin_jwt_secret
 
 # Razorpay
 RAZORPAY_KEY_ID=your_razorpay_key_id
@@ -221,7 +217,7 @@ turbo build
 1. **Admin** signs up → credentials stored in MongoDB (`Admin` collection)
 2. On login → server validates credentials, issues a **JWT**
 3. JWT stored in cookie (`js-cookie`) and validated on every protected API call
-4. **Users** also support **NextAuth** session-based auth alongside JWT
+4. **Users** follow the same JWT-based authentication flow for protected API calls and route guards
 
 ---
 

@@ -83,11 +83,9 @@ function FeaturedCard({ course, onClick }: { course: CourseFormat; onClick: (id:
 // ─── Continue Learning Card ───────────────────────────────────────────────────
 function ContinueCard({
   course,
-  progress,
   onClick,
 }: {
   course: CourseFormat;
-  progress: number;
   onClick: (id: string) => void;
 }) {
   return (
@@ -104,30 +102,17 @@ function ContinueCard({
         />
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-bold text-slate-900 truncate">
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
+          <h3 className="text-sm font-bold text-slate-900 truncate mb-2">
             {course.title}
           </h3>
-
-          {/* Progress bar */}
-          <div className="flex items-center gap-2.5 my-2">
-            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-            <span className="text-xs font-bold text-slate-500 min-w-[28px]">
-              {progress}%
-            </span>
-          </div>
 
           <button
             type="button"
             onClick={() => onClick(course._id)}
             className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline"
           >
-            <span>Continue</span>
+            <span>Continue Course</span>
             <ArrowRightIcon className="w-3 h-3" />
           </button>
         </div>
@@ -150,8 +135,6 @@ export default function UserHome() {
   function goToCourse(id: string) {
     router.push(`/user/course/${id}`);
   }
-
-  const STATIC_PROGRESS = 40;
 
   return (
     <>
@@ -294,7 +277,6 @@ export default function UserHome() {
                 <ContinueCard
                   key={course._id}
                   course={course}
-                  progress={STATIC_PROGRESS}
                   onClick={goToCourse}
                 />
               ))}

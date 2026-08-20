@@ -42,7 +42,6 @@ export default function UserCoursePage() {
   const [course, setCourse] = useState<CourseFormat | null>(null);
   const [lessons, setLessons] = useState<LessonFormat[]>([]);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
-  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
 
   // ── Access Control State ────────────────────────────────────────────────────
   const user = useRecoilValue(userState);
@@ -152,19 +151,6 @@ export default function UserCoursePage() {
     fetchCourse();
   }, [id]);
 
-  // ── Mark lesson as completed ────────────────────────────────────────────────
-  const markCompleted = (lessonId: string) => {
-    setCompletedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(lessonId)) {
-        next.delete(lessonId);
-      } else {
-        next.add(lessonId);
-      }
-      return next;
-    });
-  };
-
   // ── Loading guard ───────────────────────────────────────────────────────────
   if (!course || user.isLoading || isPurchasedLoading) {
     return (
@@ -175,7 +161,6 @@ export default function UserCoursePage() {
   }
 
   const activeLesson = lessons.find((l) => l._id === activeLessonId) ?? null;
-  const completedCount = completedIds.size;
 
   return (
     <>
@@ -205,23 +190,9 @@ export default function UserCoursePage() {
                 {course.title}
               </h2>
 
-              {/* Progress */}
-              <div className="space-y-1.5 pt-1">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <MenuBookIcon className="w-4 h-4 text-slate-400" />
-                  <span>
-                    {completedCount} / {lessons.length} lessons completed
-                  </span>
-                </div>
-
-                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-300"
-                    style={{
-                      width: lessons.length > 0 ? `${(completedCount / lessons.length) * 100}%` : "0%",
-                    }}
-                  ></div>
-                </div>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 pt-1">
+                <MenuBookIcon className="w-4 h-4 text-slate-400" />
+                <span>{lessons.length} lessons available</span>
               </div>
             </div>
 
@@ -233,7 +204,6 @@ export default function UserCoursePage() {
             ) : (
               <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
                 {lessons.map((lesson, idx) => {
-                  const done = completedIds.has(lesson._id);
                   const active = activeLessonId === lesson._id;
 
                   return (
@@ -247,15 +217,11 @@ export default function UserCoursePage() {
                           : "hover:bg-slate-50 text-slate-700"
                       }`}
                     >
-                      <div className="shrink-0">
-                        {done ? (
-                          <CheckCircleIcon className="w-4 h-4 text-emerald-600" />
-                        ) : (
-                          <CircleUncheckedIcon className="w-4 h-4 text-slate-300" />
-                        )}
-                      </div>
+                      <span className="text-xs font-semibold text-slate-400 w-5 shrink-0">
+                        {idx + 1}.
+                      </span>
                       <span className="text-xs leading-snug flex-1 truncate">
-                        {idx + 1}. {lesson.title}
+                        {lesson.title}
                       </span>
                     </button>
                   );
@@ -397,20 +363,13 @@ export default function UserCoursePage() {
 
               <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm">
                 {/* Lesson header */}
-                <div className="flex items-center gap-3.5 mb-6">
-                  {completedIds.has(activeLesson._id) ? (
-                    <CheckCircleIcon className="w-7 h-7 text-emerald-600 shrink-0" />
-                  ) : (
-                    <CircleUncheckedIcon className="w-7 h-7 text-slate-300 shrink-0" />
-                  )}
-                  <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                      LESSON {lessons.findIndex((l) => l._id === activeLesson._id) + 1} OF {lessons.length}
-                    </span>
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-                      {activeLesson.title}
-                    </h2>
-                  </div>
+                <div className="mb-6">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                    LESSON {lessons.findIndex((l) => l._id === activeLesson._id) + 1} OF {lessons.length}
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                    {activeLesson.title}
+                  </h2>
                 </div>
 
                 <hr className="border-slate-200 mb-6" />
@@ -436,44 +395,24 @@ export default function UserCoursePage() {
 
                 <hr className="border-slate-200 my-8" />
 
-                {/* Mark as Completed button */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => markCompleted(activeLesson._id)}
-                    className={`flex items-center gap-2 px-6 py-2.5 font-bold rounded-xl text-sm transition-all ${
-                      completedIds.has(activeLesson._id)
-                        ? "border border-emerald-600 text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
-                        : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-                    }`}
-                  >
-                    {completedIds.has(activeLesson._id) ? (
-                      <>
-                        <CheckCircleIcon className="w-4 h-4" />
-                        <span>Completed ✓</span>
-                      </>
-                    ) : (
-                      <>
-                        <CircleUncheckedIcon className="w-4 h-4" />
-                        <span>Mark as Completed</span>
-                      </>
-                    )}
-                  </button>
-
-                  {completedIds.has(activeLesson._id) && (() => {
-                    const idx = lessons.findIndex((l) => l._id === activeLesson._id);
-                    const next = lessons[idx + 1];
-                    return next ? (
-                      <button
-                        type="button"
-                        onClick={() => setActiveLessonId(next._id)}
-                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-sm transition-all"
-                      >
-                        Next Lesson →
-                      </button>
-                    ) : null;
-                  })()}
-                </div>
+                {/* Bottom Navigation */}
+                {(() => {
+                  const idx = lessons.findIndex((l) => l._id === activeLesson._id);
+                  const next = lessons[idx + 1];
+                  return (
+                    <div className="flex justify-end items-center">
+                      {next && (
+                        <button
+                          type="button"
+                          onClick={() => setActiveLessonId(next._id)}
+                          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-sm transition-all"
+                        >
+                          Next Lesson →
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
             </div>
