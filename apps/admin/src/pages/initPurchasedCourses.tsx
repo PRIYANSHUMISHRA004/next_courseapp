@@ -4,24 +4,16 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { userState, purchasedCoursesState } from "store";
 
-/**
- * Side-effect-only component.
- * Fetches the authenticated user's purchased courses and writes them into
- * purchasedCoursesState. Re-runs whenever userName changes (login / logout).
- * Mount this in _app.tsx for all /user/* routes.
- */
 export default function InitPurchasedCourses() {
   const user = useRecoilValue(userState);
   const setPurchased = useSetRecoilState(purchasedCoursesState);
 
   useEffect(() => {
-    // Don't run while the auth check is still in flight
     if (user.isLoading) return;
 
     const token = Cookies.get("token");
 
     if (!token || !user.userName) {
-      // Not logged in — clear purchased courses immediately
       setPurchased({ courses: [], isLoading: false });
       return;
     }
@@ -42,7 +34,6 @@ export default function InitPurchasedCourses() {
     }
 
     init();
-  // Re-run when login state changes
   }, [user.isLoading, user.userName, setPurchased]);
 
   return null;

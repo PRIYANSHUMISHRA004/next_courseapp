@@ -28,9 +28,9 @@ export default function App({ Component, pageProps }: AppProps) {
           role={role === "admin" ? adminState : userState}
         />
       )}
-      {/* Fetch all published courses once for /user/* routes */}
+
       {isUserRoute && <InitCourses />}
-      {/* Fetch purchased courses once; re-runs on login/logout */}
+
       {isUserRoute && <InitPurchasedCourses />}
       {role && <Appbar role={role} />}
       <Component {...pageProps} />

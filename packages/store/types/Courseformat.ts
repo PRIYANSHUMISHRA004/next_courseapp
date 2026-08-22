@@ -27,8 +27,6 @@ export interface CourseFormat {
   duration?: string;
   tags?: string[];
   totalLessons?: number;
-  rating?: number;
-  studentsEnrolled?: number;
 
   // ── Timestamps (set by Mongoose) ───────────────────────────────────────────
   createdAt?: string;

@@ -38,7 +38,8 @@ export default async function handler(
     {
       username: admin.username,
     },
-    process.env.ADMIN_SECRET!
+    process.env.ADMIN_SECRET!,
+   { expiresIn: "1d"}
   );
 
   return res.status(200).json({

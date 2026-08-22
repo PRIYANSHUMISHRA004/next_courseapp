@@ -14,20 +14,22 @@ export function Appbar({ role }: AppbarProps) {
   const router = useRouter();
   const stateAtom = role === "admin" ? adminState : userState;
   const [user, setState] = useRecoilState(stateAtom);
-
+  const displayName = user.userName
+    ? user.userName.charAt(0).toUpperCase() + user.userName.slice(1)
+    : "Learner";
   const homeRoute = `/${role}/`;
   const signupRoute = `/${role}/signup`;
   const loginRoute = `/${role}/login`;
 
   const handleLogout = () => {
-    // Reset only the role-specific Recoil atom — admin and user are separate
+ 
     setState({
       userName: null,
       isLoading: false,
     });
-    // Remove the authentication token cookie
+   
     Cookies.remove("token");
-    // Redirect to the landing page (Admin/User portal chooser), not to login
+   
     router.replace("/");
   };
 
@@ -85,10 +87,6 @@ export function Appbar({ role }: AppbarProps) {
                   >
                     Dashboard
                   </Link>
-                  {/* TODO:
-                      Replace this navigation with /admin/courses when the global
-                      course catalog page is implemented.
-                      Keep My Courses pointing to /admin/mycourses. */}
                   <Link
                     href={`/${role}/mycourses`}
                     className={`text-sm font-semibold transition-colors duration-200 ${
@@ -116,7 +114,7 @@ export function Appbar({ role }: AppbarProps) {
         </div>
 
         {/* Center: Search Bar (only when logged in) */}
-        {isLoggedIn && (
+        {/* {isLoggedIn && (
           <div className="hidden sm:flex items-center w-[180px] md:w-[240px] relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
               <SearchIcon className="w-4 h-4" />
@@ -127,7 +125,7 @@ export function Appbar({ role }: AppbarProps) {
               className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-all"
             />
           </div>
-        )}
+        )} */}
 
         {/* Right Side: Profile Info / Auth Actions */}
         <div className="flex items-center gap-5">
@@ -140,7 +138,7 @@ export function Appbar({ role }: AppbarProps) {
                 </div>
                 <div className="hidden sm:flex flex-col gap-0.5">
                   <span className="text-sm font-bold text-slate-900 leading-tight">
-                    {user.userName}
+                    {displayName}
                   </span>
                   <span
                     className={`text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded self-start ${

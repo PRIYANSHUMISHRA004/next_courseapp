@@ -44,8 +44,6 @@ export default async function handler(
       thumbnail,
       tags,
       totalLessons,
-      rating,
-      studentsEnrolled,
       // LMS: embedded lessons array
       lessons,
     } = req.body;
@@ -76,8 +74,6 @@ console.log(admin._id);
           ...(thumbnail !== undefined && { thumbnail }),
           ...(tags !== undefined && { tags }),
           ...(totalLessons !== undefined && { totalLessons }),
-          ...(rating !== undefined && { rating }),
-          ...(studentsEnrolled !== undefined && { studentsEnrolled }),
           // LMS: replace entire lessons array when provided
           ...(lessons !== undefined && { lessons }),
         },
