@@ -97,12 +97,12 @@ export default function UserCoursePage() {
 
             alert("Payment successful! Course unlocked.");
 
-            // ── Step 4: Only NOW refresh purchasedCourses in Recoil ──────────
-            const myCoursesRes = await axios.get("/api/user/mycourse", {
+            // ── Step 4: Refresh purchasedCourses in Recoil ──────────
+            const userMeRes = await axios.get("/api/user/me", {
               headers: { Authorization: `Bearer ${token}` },
             });
             setPurchased({
-              courses: myCoursesRes.data.courses || [],
+              courses: userMeRes.data.courses || [],
               isLoading: false,
             });
           } catch (verifyErr: any) {

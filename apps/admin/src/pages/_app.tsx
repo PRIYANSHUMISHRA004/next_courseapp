@@ -5,7 +5,6 @@ import Script from "next/script";
 import { Appbar } from "ui";
 import InitUser from "./init";
 import InitCourses from "./initCourses";
-import InitPurchasedCourses from "./initPurchasedCourses";
 import { useRouter } from "next/router";
 import { adminState, userState } from "store";
 
@@ -30,8 +29,6 @@ export default function App({ Component, pageProps }: AppProps) {
       )}
 
       {isUserRoute && <InitCourses />}
-
-      {isUserRoute && <InitPurchasedCourses />}
       {role && <Appbar role={role} />}
       <Component {...pageProps} />
     </RecoilRoot>

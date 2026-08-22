@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactStrictMode: true,
-  transpilePackages:['store','ui','db','auth']
+  transpilePackages: ["store", "ui", "db", "auth"],
+  // Prevents worker thread memory spikes on Vercel build servers
+  experimental: {
+    cpus: 1,
+  },
 };
 
 export default nextConfig;
+

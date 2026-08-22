@@ -20,7 +20,7 @@ export default async function handler(
 
     const user = await User.findOne({
       username: decoded.username,
-    });
+    }).populate("courses");
 
     if (!user) {
       return res.status(404).json({
@@ -31,6 +31,7 @@ export default async function handler(
     return res.status(200).json({
       name: user.name,
       username: user.username,
+      courses: user.courses || [],
     });
   } catch (err) {
     return res.status(401).json({

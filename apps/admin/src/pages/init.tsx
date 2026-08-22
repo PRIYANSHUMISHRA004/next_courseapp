@@ -2,15 +2,16 @@ import { useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 import Cookies from "js-cookie";
 import axios from "axios";
-
+import { purchasedCoursesState } from "store";
 
 interface InitUserProps {
   apiUrl: string;
-  role:any
+  role: any;
 }
 
-export default function InitUser({ apiUrl,role }: InitUserProps) {
+export default function InitUser({ apiUrl, role }: InitUserProps) {
   const setUser = useSetRecoilState(role);
+  const setPurchased = useSetRecoilState(purchasedCoursesState);
 
   useEffect(() => {
     async function init() {
@@ -19,6 +20,10 @@ export default function InitUser({ apiUrl,role }: InitUserProps) {
       if (!token) {
         setUser({
           userName: null,
+          isLoading: false,
+        });
+        setPurchased({
+          courses: [],
           isLoading: false,
         });
         return;
@@ -35,6 +40,13 @@ export default function InitUser({ apiUrl,role }: InitUserProps) {
           userName: res.data.name,
           isLoading: false,
         });
+
+        if (res.data.courses) {
+          setPurchased({
+            courses: res.data.courses,
+            isLoading: false,
+          });
+        }
       } catch {
         Cookies.remove("token");
 
@@ -42,11 +54,15 @@ export default function InitUser({ apiUrl,role }: InitUserProps) {
           userName: null,
           isLoading: false,
         });
+        setPurchased({
+          courses: [],
+          isLoading: false,
+        });
       }
     }
 
     init();
-  }, [setUser, apiUrl,role]);
+  }, [setUser, setPurchased, apiUrl, role]);
 
   return null;
 }

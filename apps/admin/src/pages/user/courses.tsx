@@ -5,7 +5,6 @@ import { useRecoilValue } from "recoil";
 import { userState, coursesState, purchasedCoursesState } from "store";
 import Head from "next/head";
 
-// Inline SVG fallback when a course image fails to load
 const PLACEHOLDER_SRC =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='180' viewBox='0 0 300 180'%3E%3Crect width='300' height='180' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='13' fill='%2394a3b8'%3ENo Image Available%3C/text%3E%3C/svg%3E";
 
@@ -13,7 +12,7 @@ export default function CoursesPage() {
   const router = useRouter();
   const user = useRecoilValue(userState);
 
-  // Read from centralized Recoil state — no local fetches needed
+
   const { courses } = useRecoilValue(coursesState);
   const { courses: purchasedCourses } = useRecoilValue(purchasedCoursesState);
 
