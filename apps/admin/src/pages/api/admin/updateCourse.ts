@@ -36,7 +36,6 @@ export default async function handler(
       imageLink,
       price,
       published,
-      // new optional fields
       category,
       level,
       language,
@@ -44,45 +43,48 @@ export default async function handler(
       thumbnail,
       tags,
       totalLessons,
-      // LMS: embedded lessons array
       lessons,
     } = req.body;
-console.log("Admin ID:", admin._id);
-console.log("Course ID:", courseId);
-const existingCourse = await Course.findById(courseId);
-console.log(existingCourse);
-console.log(existingCourse?.adminId);
-console.log(admin._id);
+
+    if (!courseId) {
+      return res.status(400).json({
+        message: "Course ID is required",
+      });
+    }
+
+    const updateFields: Record<string, any> = {};
+
+    if (title !== undefined) updateFields.title = title;
+    if (description !== undefined) updateFields.description = description;
+    if (imageLink !== undefined) updateFields.imageLink = imageLink;
+    if (price !== undefined) updateFields.price = price;
+    if (published !== undefined) updateFields.published = published;
+    if (category !== undefined) updateFields.category = category;
+    if (level !== undefined) updateFields.level = level;
+    if (language !== undefined) updateFields.language = language;
+    if (duration !== undefined) updateFields.duration = duration;
+    if (thumbnail !== undefined) updateFields.thumbnail = thumbnail;
+    if (tags !== undefined) updateFields.tags = tags;
+    if (lessons !== undefined) {
+      updateFields.lessons = lessons;
+      if (totalLessons === undefined) {
+        updateFields.totalLessons = lessons.length;
+      }
+    }
+    if (totalLessons !== undefined) updateFields.totalLessons = totalLessons;
+
     const course = await Course.findOneAndUpdate(
       {
         _id: courseId,
         adminId: admin._id,
       },
       {
-        $set: {
-          // original fields — only updated when truthy/defined in the request
-          title,
-          description,
-          imageLink,
-          price,
-          published,
-          // new optional fields — undefined values are ignored by MongoDB $set
-          ...(category !== undefined && { category }),
-          ...(level !== undefined && { level }),
-          ...(language !== undefined && { language }),
-          ...(duration !== undefined && { duration }),
-          ...(thumbnail !== undefined && { thumbnail }),
-          ...(tags !== undefined && { tags }),
-          ...(totalLessons !== undefined && { totalLessons }),
-          // LMS: replace entire lessons array when provided
-          ...(lessons !== undefined && { lessons }),
-        },
+        $set: updateFields,
       },
       {
         new: true,
       }
     );
-
 
     if (!course) {
       return res.status(404).json({

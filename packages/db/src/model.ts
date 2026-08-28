@@ -13,10 +13,18 @@ export const adminSchema = new mongoose.Schema({
 });
 
 const lessonSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, default: "" },
-  content: { type: String, default: "" },
-  order: { type: Number, default: 0 },
+  title: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    default: "",
+  },
+  order: {
+    type: Number,
+    default: 0,
+  },
 });
 
 export const courseSchema = new mongoose.Schema(

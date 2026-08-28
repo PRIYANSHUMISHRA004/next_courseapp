@@ -1,8 +1,6 @@
 import {
   AddIcon,
   DeleteIcon,
-  ChevronUpIcon,
-  ChevronDownIcon,
   SaveIcon,
   EditIcon,
 } from "ui";
@@ -15,8 +13,19 @@ import { CourseFormat, LessonFormat, CATEGORIES, LEVELS, LANGUAGES } from "store
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function newLesson(order: number): Omit<LessonFormat, "_id"> & { _id: string } {
-  return { _id: `new_${Date.now()}`, title: "", description: "", content: "", order };
+function newLesson(order: number): LessonFormat {
+  return { _id: `new_${Date.now()}`, title: "", description: "", order };
+}
+
+/** Strips temporary client-generated IDs so MongoDB generates valid ObjectIds */
+function sanitizeLessons(lessonsList: LessonFormat[]) {
+  return lessonsList.map((l) => {
+    if (typeof l._id === "string" && l._id.startsWith("new_")) {
+      const { _id, ...rest } = l;
+      return rest;
+    }
+    return l;
+  });
 }
 
 /** Small section label */
@@ -35,13 +44,23 @@ export default function AdminCoursePage() {
   const { id } = router.query;
 
   const [course, setCourse] = useState<CourseFormat | null>(null);
-  // Separate state for the tags text-field (comma-separated)
   const [tagsRaw, setTagsRaw] = useState("");
-
-  // Local lessons state — managed separately to avoid mutating course directly
   const [lessons, setLessons] = useState<LessonFormat[]>([]);
-  // Which lesson _id is currently open for editing (null = none)
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  /** Syncs both course and lessons state from a fetched or updated course */
+  const syncCourse = (data: CourseFormat) => {
+    setCourse(data);
+    setTagsRaw(data.tags?.join(", ") ?? "");
+    const normalizedLessons: LessonFormat[] = (data.lessons ?? []).map((l: any) => ({
+      _id: l._id,
+      title: l.title || "",
+      description: l.description || l.content || "",
+      order: typeof l.order === "number" ? l.order : 0,
+    }));
+    const sorted = [...normalizedLessons].sort((a, b) => a.order - b.order);
+    setLessons(sorted);
+  };
 
   // ── Fetch course ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -52,46 +71,50 @@ export default function AdminCoursePage() {
         const res = await axios.get(`/api/admin/courses?id=${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const fetched: CourseFormat = res.data.course;
-        setCourse(fetched);
-        // Populate tags text-field from the stored array
-        setTagsRaw(fetched.tags?.join(", ") ?? "");
-        // Sort by order so they render in the correct sequence
-        const sorted = [...(fetched.lessons ?? [])].sort((a, b) => a.order - b.order);
-        setLessons(sorted);
+        if (res.data?.course) {
+          syncCourse(res.data.course);
+        }
       } catch (err) {
-        console.error(err);
+        console.error("Failed to fetch course:", err);
       }
     }
     fetchCourse();
   }, [id]);
 
-  // ── Course update (metadata only) ──────────────────────────────────────────
+  // ── Course update (metadata and lessons) ───────────────────────────────────
   const updateCourse = async () => {
     if (!course) return;
     try {
       const token = Cookies.get("token");
 
-      // Derive tags array from tagsRaw
       const tags = tagsRaw
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean);
 
-      await axios.put(
+      const { lessons: _discard, ...courseMetadata } = course;
+
+      const res = await axios.put(
         "/api/admin/updateCourse",
         {
           courseId: id,
-          ...course,
-          thumbnail: course.imageLink, // auto-derive from imageLink
+          ...courseMetadata,
+          lessons: sanitizeLessons(lessons),
+          thumbnail: course.imageLink,
           tags,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Course updated successfully");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update course");
+
+      if (res.data?.course) {
+        syncCourse(res.data.course);
+      }
+
+      alert(res.data?.message || "Course updated successfully");
+    } catch (err: any) {
+      console.error("Failed to update course:", err);
+      const msg = err?.response?.data?.message || "Failed to update course";
+      alert(msg);
     }
   };
 
@@ -100,14 +123,15 @@ export default function AdminCoursePage() {
     if (!window.confirm("Delete this course? This cannot be undone.")) return;
     try {
       const token = Cookies.get("token");
-      await axios.delete(`/api/admin/deleteCourse?courseId=${id}`, {
+      const res = await axios.delete(`/api/admin/deleteCourse?courseId=${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert("Course deleted successfully");
+      alert(res.data?.message || "Course deleted successfully");
       router.push("/admin/courses");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete course");
+    } catch (err: any) {
+      console.error("Failed to delete course:", err);
+      const msg = err?.response?.data?.message || "Failed to delete course";
+      alert(msg);
     }
   };
 
@@ -116,36 +140,29 @@ export default function AdminCoursePage() {
     try {
       const token = Cookies.get("token");
 
-      // Strip temporary "new_*" ids so Mongoose can generate valid ObjectIds
-      const lessonsToSave = updatedLessons.map((l) => {
-        if (l._id.startsWith("new_")) {
-          const { _id, ...rest } = l;
-          return rest;
-        }
-        return l;
-      });
-
       const res = await axios.put(
         "/api/admin/updateCourse",
-        { courseId: id, lessons: lessonsToSave },
+        {
+          courseId: id,
+          lessons: sanitizeLessons(updatedLessons),
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Update local state with the returned lessons containing real database ObjectIds
-      if (res.data.course?.lessons) {
-        const sorted = [...res.data.course.lessons].sort((a, b) => a.order - b.order);
-        setLessons(sorted);
+      if (res.data?.course) {
+        syncCourse(res.data.course);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to save lessons:", err);
-      alert("Failed to save lessons");
+      const msg = err?.response?.data?.message || "Failed to save lessons";
+      alert(msg);
     }
   };
 
   // ── Lesson: add ─────────────────────────────────────────────────────────────
   const addLesson = () => {
     const next = newLesson(lessons.length);
-    const updated = [...lessons, next as LessonFormat];
+    const updated = [...lessons, next];
     setLessons(updated);
     setEditingId(next._id);
   };
@@ -153,9 +170,7 @@ export default function AdminCoursePage() {
   // ── Lesson: delete ──────────────────────────────────────────────────────────
   const deleteLesson = async (lessonId: string) => {
     if (!window.confirm("Delete this lesson?")) return;
-    const updated = lessons
-      .filter((l) => l._id !== lessonId)
-      .map((l, i) => ({ ...l, order: i }));
+    const updated = lessons.filter((l) => l._id !== lessonId);
     setLessons(updated);
     if (editingId === lessonId) setEditingId(null);
     await saveLessons(updated);
@@ -177,21 +192,6 @@ export default function AdminCoursePage() {
     }
     await saveLessons(lessons);
     setEditingId(null);
-  };
-
-  // ── Lesson: reorder ─────────────────────────────────────────────────────────
-  const moveLesson = async (lessonId: string, direction: "up" | "down") => {
-    const idx = lessons.findIndex((l) => l._id === lessonId);
-    if (direction === "up" && idx === 0) return;
-    if (direction === "down" && idx === lessons.length - 1) return;
-
-    const next = [...lessons];
-    const swap = direction === "up" ? idx - 1 : idx + 1;
-    [next[idx], next[swap]] = [next[swap], next[idx]];
-    // Rewrite order to match position
-    const reordered = next.map((l, i) => ({ ...l, order: i }));
-    setLessons(reordered);
-    await saveLessons(reordered);
   };
 
   // ── Loading guard ───────────────────────────────────────────────────────────
@@ -486,26 +486,12 @@ export default function AdminCoursePage() {
                         {lesson.title || <em className="text-slate-400">Untitled lesson</em>}
                       </span>
 
+                      <span className="text-xs font-medium text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded-md">
+                        Order: {lesson.order}
+                      </span>
+
                       {/* Actions */}
                       <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          title="Move up"
-                          disabled={idx === 0}
-                          onClick={() => moveLesson(lesson._id, "up")}
-                          className="p-1 text-slate-500 hover:text-slate-800 disabled:opacity-30 disabled:hover:text-slate-500 rounded-lg hover:bg-slate-200/60 transition-colors"
-                        >
-                          <ChevronUpIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          title="Move down"
-                          disabled={idx === lessons.length - 1}
-                          onClick={() => moveLesson(lesson._id, "down")}
-                          className="p-1 text-slate-500 hover:text-slate-800 disabled:opacity-30 disabled:hover:text-slate-500 rounded-lg hover:bg-slate-200/60 transition-colors"
-                        >
-                          <ChevronDownIcon className="w-4 h-4" />
-                        </button>
                         <button
                           type="button"
                           title={isEditing ? "Close" : "Edit"}
@@ -540,6 +526,7 @@ export default function AdminCoursePage() {
                             type="text"
                             value={lesson.title}
                             onChange={(e) => updateLesson(lesson._id, "title", e.target.value)}
+                            placeholder="e.g. Introduction to React"
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
                           />
                         </div>
@@ -549,10 +536,10 @@ export default function AdminCoursePage() {
                             Lesson Description
                           </label>
                           <textarea
-                            rows={2}
+                            rows={4}
                             value={lesson.description ?? ""}
                             onChange={(e) => updateLesson(lesson._id, "description", e.target.value)}
-                            placeholder="A short summary of what this lesson covers"
+                            placeholder="Write lesson description and content here..."
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
                           />
                         </div>
@@ -565,25 +552,12 @@ export default function AdminCoursePage() {
                             type="number"
                             min={0}
                             value={lesson.order}
-                            onChange={(e) => updateLesson(lesson._id, "order", Number(e.target.value))}
+                            onChange={(e) => updateLesson(lesson._id, "order", e.target.value === "" ? 0 : Number(e.target.value))}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
                           />
                           <span className="text-xs text-slate-400 mt-0.5 block">
-                            Lower number = earlier in list
+                            Admin specifies order number (e.g. 0, 1, 2). Lower number = earlier in list.
                           </span>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-600 mb-1">
-                            Content (Markdown)
-                          </label>
-                          <textarea
-                            rows={6}
-                            value={lesson.content}
-                            onChange={(e) => updateLesson(lesson._id, "content", e.target.value)}
-                            placeholder={"# Lesson Title\n\nWrite your lesson content here using **Markdown**.\n\n- Point 1\n- Point 2"}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
-                          />
                         </div>
 
                         <button

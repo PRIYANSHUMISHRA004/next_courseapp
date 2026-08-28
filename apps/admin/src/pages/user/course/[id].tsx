@@ -6,34 +6,9 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import Cookies from "js-cookie";
 import Head from "next/head";
 import {
-  CheckCircleIcon,
-  CircleUncheckedIcon,
   ArrowLeftIcon,
   MenuBookIcon,
 } from "ui";
-
-// ─── Simple Markdown renderer ─────────────────────────────────────────────────
-function renderMarkdown(md: string): string {
-  return md
-    // headings
-    .replace(/^### (.+)$/gm, "<h3 class='text-lg font-bold text-slate-900 mt-4 mb-2'>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2 class='text-xl font-bold text-slate-900 mt-6 mb-3'>$1</h2>")
-    .replace(/^# (.+)$/gm, "<h1 class='text-2xl font-extrabold text-slate-900 mt-6 mb-4'>$1</h1>")
-    // bold
-    .replace(/\*\*(.+?)\*\*/g, "<strong class='font-bold text-slate-900'>$1</strong>")
-    // italic
-    .replace(/\*(.+?)\*/g, "<em class='italic'>$1</em>")
-    // inline code
-    .replace(/`(.+?)`/g, "<code class='bg-slate-100 text-blue-700 px-1.5 py-0.5 rounded font-mono text-sm'>$1</code>")
-    // bullet list items
-    .replace(/^[-*] (.+)$/gm, "<li class='ml-4 list-disc'>$1</li>")
-    // wrap consecutive <li> items in <ul>
-    .replace(/((<li.*<\/li>\n?)+)/g, "<ul class='pl-4 my-3 space-y-1'>$1</ul>")
-    // double newline → paragraph break
-    .replace(/\n\n/g, "</p><p class='my-3'>")
-    // single newline → <br>
-    .replace(/\n/g, "<br/>");
-}
 
 export default function UserCoursePage() {
   const router = useRouter();
@@ -142,7 +117,13 @@ export default function UserCoursePage() {
         const res = await axios.get(`/api/user/courses?id=${id}`);
         const fetched: CourseFormat = res.data.course;
         setCourse(fetched);
-        const sorted = [...(fetched.lessons ?? [])].sort((a, b) => a.order - b.order);
+        const rawLessons: LessonFormat[] = (fetched.lessons ?? []).map((l: any) => ({
+          _id: l._id,
+          title: l.title || "",
+          description: l.description || l.content || "",
+          order: typeof l.order === "number" ? l.order : 0,
+        }));
+        const sorted = [...rawLessons].sort((a, b) => a.order - b.order);
         setLessons(sorted);
       } catch (err) {
         console.error(err);
@@ -211,11 +192,10 @@ export default function UserCoursePage() {
                       key={lesson._id}
                       type="button"
                       onClick={() => setActiveLessonId(lesson._id)}
-                      className={`w-full text-left flex items-center gap-3 px-4 py-3.5 transition-colors ${
-                        active
-                          ? "bg-blue-50/80 border-l-4 border-blue-600 font-bold text-blue-900"
-                          : "hover:bg-slate-50 text-slate-700"
-                      }`}
+                      className={`w-full text-left flex items-center gap-3 px-4 py-3.5 transition-colors ${active
+                        ? "bg-blue-50/80 border-l-4 border-blue-600 font-bold text-blue-900"
+                        : "hover:bg-slate-50 text-slate-700"
+                        }`}
                     >
                       <span className="text-xs font-semibold text-slate-400 w-5 shrink-0">
                         {idx + 1}.
@@ -374,19 +354,11 @@ export default function UserCoursePage() {
 
                 <hr className="border-slate-200 mb-6" />
 
-                {/* Lesson description */}
-                {activeLesson.description && (
-                  <div className="mb-6 p-4 bg-slate-50 border-l-4 border-blue-500 rounded-r-xl text-slate-600 text-sm italic leading-relaxed">
+                {/* Lesson content / description */}
+                {activeLesson.description ? (
+                  <p className="text-slate-800 text-sm sm:text-base leading-relaxed whitespace-pre-line">
                     {activeLesson.description}
-                  </div>
-                )}
-
-                {/* Lesson content — rendered Markdown */}
-                {activeLesson.content ? (
-                  <div
-                    className="text-slate-800 text-sm sm:text-base leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: `<p>${renderMarkdown(activeLesson.content)}</p>` }}
-                  />
+                  </p>
                 ) : (
                   <p className="text-slate-400 text-sm italic">
                     This lesson has no content yet.

@@ -2,8 +2,7 @@
 export interface LessonFormat {
   _id: string;
   title: string;
-  description: string; // Short summary shown above the Markdown content
-  content: string;     // Full Markdown document
+  description: string;
   order: number;
 }
 

@@ -33,14 +33,14 @@ next_courseapp/
 - Secure admin **signup & login** (JWT-based)
 - **Create, update, and delete** courses
 - Upload course thumbnails, set pricing, category, level & tags
-- Interactive **curriculum and lesson manager** with Markdown content editor
+- Interactive **curriculum and lesson manager** with custom numeric ordering
 - View all created courses with live card previews and status toggles
 
 ### 👤 User Portal
 - User **signup & login** (JWT-based)
 - Browse all published courses with rich metadata and search filtering
 - **Purchase courses** via Razorpay payment gateway integration
-- Access **purchased courses** with sidebar lesson navigation and Markdown reader
+- Access **purchased courses** with sidebar lesson navigation and ordered lesson reader
 
 ### 📦 Course Model
 Each course supports:
@@ -48,7 +48,7 @@ Each course supports:
 - Category (Web Dev, AI/ML, DevOps, etc.)
 - Level (Beginner / Intermediate / Advanced)
 - Language, duration, tags
-- **Embedded lessons** (title, description, full Markdown content, order)
+- **Embedded lessons** (title, description, order)
 - Stats: rating, students enrolled, total lessons
 
 ---
